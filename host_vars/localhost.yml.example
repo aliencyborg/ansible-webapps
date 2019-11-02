@@ -1,0 +1,6 @@
+---
+hostname: machine
+username: human
+userpassword: "secret$$$hash$$$"
+workdir: "/home/human/webapps"
+# see docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
