@@ -47,9 +47,8 @@
     restart: yes
     state: started
     env:
-      LETSENCRYPT_EMAIL: 'admin@aliencyb.org'
-      LETSENCRYPT_HOST: 'drupal-demo.aliencyb.org'
-      VIRTUAL_HOST: 'drupal-demo.aliencyb.org'
+      LETSENCRYPT_HOST: "{{ drupal_demo_domain }}"
+      VIRTUAL_HOST: "{{ drupal_demo_domain }}"
     exposed_ports:
       - "80"
       - "443"
