@@ -1,5 +1,17 @@
 ---
 - hosts: webservers
-  roles:
-    - webapps
+  remote_user: "{{ username }}"
+  tasks:
+    - name: ensure webapps workdir is present
+      file:
+        path: "{{ workdir }}"
+        state: directory
 
+- hosts: east
+  remote_user: "{{ username }}"
+  tasks:
+
+- hosts: west
+  remote_user: "{{ username }}"
+  tasks:
+    - include: tasks/drupal-demo.yml
