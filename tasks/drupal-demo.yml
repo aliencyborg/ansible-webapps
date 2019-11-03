@@ -1,7 +1,7 @@
 ---
 - name: copy drupal-demo.env file to remote folder
   copy:
-    src: drupal-demo.env
+    src: env_files/drupal-demo.env
     dest: "{{ workdir }}/drupal-demo.env"
   tags: stage
 

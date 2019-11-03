@@ -1,9 +1,10 @@
-*.env
 *.retry
 
 hosts
 hosts.yml
 
+/env_files/*.env
+!/env_files/*.example.env
 /group_vars/*.yml
 !/group_vars/*.example.yml
 /host_vars/*.yml
