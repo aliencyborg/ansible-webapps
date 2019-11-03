@@ -1,0 +1,70 @@
+---
+- name: copy drupal-demo.env file to remote folder
+  copy:
+    src: drupal-demo.env
+    dest: "{{ workdir }}/drupal-demo.env"
+  tags: stage
+
+- name: drupal-demo backups container
+  docker_container:
+    image: mariadb:10
+    name: drupal-demo-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: drupal-demo content container
+  docker_container:
+    image: drupal:8
+    name: drupal-demo-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: drupal-demo data container
+  docker_container:
+    image: mariadb:10
+    name: drupal-demo-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: drupal-demo db
+  docker_container:
+    env_file: "{{ workdir }}/drupal-demo.env"
+    image: mariadb:10
+    name: drupal-demo-db
+    state: started
+    volumes:
+      - drupal-demo-db-backups:/backups
+      - drupal-demo-db-data:/var/lib/mysql
+
+- name: drupal-demo web
+  docker_container:
+    env_file: "{{ workdir }}/drupal-demo.env"
+    image: drupal:8
+    name: drupal-demo-web
+    restart: yes
+    state: started
+    env:
+      LETSENCRYPT_EMAIL: 'admin@aliencyb.org'
+      LETSENCRYPT_HOST: 'drupal-demo.aliencyb.org'
+      VIRTUAL_HOST: 'drupal-demo.aliencyb.org'
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "drupal-demo-db:mysql"
+    volumes:
+      - drupal-demo-content:/var/www/html
+
+- name: drupal-demo ftp
+  docker_container:
+    command: "{{ drupal_demo_username }}:{{ drupal_demo_password }}:1001"
+    image: atmoz/sftp:latest
+    name: drupal-demo-ftp
+    state: started
+    ports:
+      - "{{ drupal_demo_sftp_port }}:22"
+    volumes:
+      - drupal-demo-content:/home/alien/upload
