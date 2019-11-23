@@ -1,17 +1,69 @@
 ---
-- hosts: webservers
-  remote_user: "{{ username }}"
+- name: Infancy Wordpress
+  hosts: localhost
+  become: True
   tasks:
-    - name: ensure webapps workdir is present
-      file:
-        path: "{{ workdir }}"
-        state: directory
+    - name: infancy backups container
+      docker_container:
+        image: mariadb:10.4
+        name: infancy-db-backups
+        state: present
+        volumes:
+          - /backups
 
-- hosts: east
-  remote_user: "{{ username }}"
-  tasks:
+    - name: infancy content container
+      docker_container:
+        image: wordpress:5.2
+        name: infancy-content
+        state: present
+        volumes:
+          - /var/www/html
 
-- hosts: west
-  remote_user: "{{ username }}"
-  tasks:
-    - include: tasks/drupal-demo.yml
+    - name: infancy data container
+      docker_container:
+        image: mariadb:10.4
+        name: infancy-db-data
+        state: present
+        volumes:
+          - /var/lib/mysql
+
+    - name: infancy db
+      docker_container:
+        env_file: infancy.env
+        image: mariadb:10.4
+        name: infancy-db
+        state: started
+        volumes:
+          - infancy-db-backups:/backups
+          - infancy-db-data:/var/lib/mysql
+
+    - name: infancy web
+      docker_container:
+        env_file: infancy.env
+        exposed:
+          - 80
+          - 443
+        image: wordpress:5.2
+        name: infancy-wp
+        restart: yes
+        state: started
+        env:
+          LETSENCRYPT_EMAIL: 'admin@aliencyb.org'
+          LETSENCRYPT_HOST: 'infancy.aliencyb.org'
+          VIRTUAL_HOST: 'infancy.aliencyb.org'
+        links:
+          - "infancy-db:mysql"
+        volumes:
+          - infancy-content:/var/www/html
+
+    - name: infancy ftp
+      docker_container:
+        command: infancy:$1$SomzuFb7$wd7mE41JqCfbc3glhqGwK.:e:33:33
+        image: atmoz/sftp:latest
+        name: infancy-ftp
+        state: started
+        ports:
+          - "49326:22"
+        volumes:
+          - infancy-content:/home/infancy/upload
+
