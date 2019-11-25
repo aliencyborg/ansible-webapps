@@ -4,12 +4,15 @@
   tasks:
     - name: ensure webapps workdir is present
       file:
+        group: "{{ usergroup }}"
+        owner: "{{ username }}"
         path: "{{ workdir }}"
         state: directory
 
 - hosts: east
   remote_user: "{{ username }}"
   tasks:
+    - include: tasks/infancy.yml
 
 - hosts: west
   remote_user: "{{ username }}"

@@ -1,9 +1,14 @@
 ---
 - name: copy infancy.env file to remote folder
   copy:
-    src: env_files/infancy.env
     dest: "{{ workdir }}/infancy.env"
-  tags: stage
+    group: "{{ usergroup }}"
+    owner: "{{ username }}"
+    src: env_files/infancy.env
+
+- name: establish infancy docker network
+  docker_network:
+    name: infancy
 
 - name: infancy backups container
   docker_container:
@@ -34,7 +39,14 @@
     env_file: "{{ workdir }}/infancy.env"
     image: mariadb:10
     name: infancy-db
+    networks_cli_compatible: yes
     state: started
+    env:
+      MYSQL_DATABASE: infancydb
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: infancy
+    networks:
+      - name: infancy
     volumes:
       - infancy-db-backups:/backups
       - infancy-db-data:/var/lib/mysql
@@ -44,16 +56,20 @@
     env_file: "{{ workdir }}/infancy.env"
     image: wordpress:5
     name: infancy-wp
+    networks_cli_compatible: yes
     restart: yes
     state: started
     env:
-      LETSENCRYPT_HOST: "{{ infancy_demo_domain }}"
-      VIRTUAL_HOST: '{{ infancy_demo_domain }}'
+      LETSENCRYPT_HOST: "{{ infancy_domain }}"
+      VIRTUAL_HOST: '{{ infancy_domain }}'
+      WORDPRESS_DB_HOST: infancy-db
+      WORDPRESS_DB_NAME: infancydb
+      WORDPRESS_DB_USER: infancy
     exposed_ports:
       - "80"
       - "443"
-    links:
-      - "infancy-db:mysql"
+    networks:
+      - name: infancy
     volumes:
       - infancy-content:/var/www/html
 
@@ -62,7 +78,10 @@
     command: "{{ infancy_username }}:{{ infancy_password }}:1001"
     image: atmoz/sftp:latest
     name: infancy-ftp
+    networks_cli_compatible: yes
     state: started
+    networks:
+      - name: infancy
     ports:
       - "{{ infancy_sftp_port }}:22"
     volumes:
