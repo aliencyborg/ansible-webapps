@@ -9,3 +9,8 @@ drupal_demo_domain: drupal-demo.example.org
 drupal_demo_username: demo
 drupal_demo_password: demo1234
 drupal_demo_sftp_port: 49152
+
+mmm_domain: another-wordpress.example.com
+mmm_sftp_username: sftpusername
+mmm_sftp_password: sftppassword
+mmm_sftp_port: 49153

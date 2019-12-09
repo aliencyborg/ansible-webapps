@@ -1,0 +1,89 @@
+---
+- name: copy my-market-mentor.env file to remote folder
+  copy:
+    dest: "{{ workdir }}/my-market-mentor.env"
+    group: "{{ usergroup }}"
+    owner: "{{ username }}"
+    src: env_files/my-market-mentor.env
+
+- name: establish mmm docker network
+  docker_network:
+    name: mmm
+
+- name: mmm backups container
+  docker_container:
+    image: mariadb:10
+    name: mmm-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: mmm content container
+  docker_container:
+    image: wordpress:5
+    name: mmm-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: mmm data container
+  docker_container:
+    image: mariadb:10
+    name: mmm-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: mmm db
+  docker_container:
+    env_file: "{{ workdir }}/my-market-mentor.env"
+    image: mariadb:10
+    name: mmm-db
+    networks_cli_compatible: yes
+    state: started
+    env:
+      MYSQL_DATABASE: mmmdb
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: mmm
+    networks:
+      - name: mmm
+    volumes:
+      - mmm-db-backups:/backups
+      - mmm-db-data:/var/lib/mysql
+
+- name: mmm wordpress
+  docker_container:
+    env_file: "{{ workdir }}/my-market-mentor.env"
+    image: wordpress:5
+    name: mmm-wp
+    networks_cli_compatible: yes
+    restart: yes
+    state: started
+    env:
+      HSTS: 'off'
+      LETSENCRYPT_HOST: "{{ mmm_domain }}, www.{{ mmm_domain }}"
+      VIRTUAL_HOST: '{{ mmm_domain }}, www.{{ mmm_domain }}'
+      WORDPRESS_DB_HOST: mmm-db
+      WORDPRESS_DB_NAME: mmmdb
+      WORDPRESS_DB_USER: mmm
+    exposed_ports:
+      - "80"
+      - "443"
+    networks:
+      - name: mmm
+    volumes:
+      - mmm-content:/var/www/html
+
+- name: mmm sftp
+  docker_container:
+    command: "{{ mmm_sftp_username }}:{{ mmm_sftp_password }}:1001"
+    image: atmoz/sftp:latest
+    name: mmm-ftp
+    networks_cli_compatible: yes
+    state: started
+    networks:
+      - name: mmm
+    ports:
+      - "{{ mmm_sftp_port }}:22"
+    volumes:
+      - mmm-content:/home/mmm/upload

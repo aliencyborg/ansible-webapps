@@ -12,7 +12,7 @@
 - hosts: east
   remote_user: "{{ username }}"
   tasks:
-    - include: tasks/infancy.yml
+    - include: tasks/my-market-mentor.yml
 
 - hosts: west
   remote_user: "{{ username }}"
