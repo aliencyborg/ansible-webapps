@@ -1,8 +1,0 @@
-alien_admin:
-  db:
-    name: alienadmindb
-    password: alienadmindbpw
-    user: alienadmin
-  sftp:
-    password: alienadminsftppw
-    user: alienadmin

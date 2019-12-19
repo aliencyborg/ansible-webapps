@@ -1,8 +1,0 @@
-my_market_mentor:
-  db:
-    name: mymarketmentordb
-    password: mymarketmentordbpw
-    user: mymarketmentor
-  sftp:
-    password: mymarketmentorsftppw
-    user: mymarketmentor
