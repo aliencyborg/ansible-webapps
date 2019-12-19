@@ -1,0 +1,70 @@
+---
+- name: alien-admin db backups container
+  docker_container:
+    image: mariadb:10
+    name: alien-admin-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: alien-admin drupal content container
+  docker_container:
+    image: drupal:8
+    name: alien-admin-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: alien-admin db data container
+  docker_container:
+    image: mariadb:10
+    name: alien-admin-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: alien-admin database
+  docker_container:
+    image: mariadb:10
+    name: alien-admin-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ alien_admin.db.name }}"
+      MYSQL_PASSWORD: "{{ alien_admin.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ alien_admin.db.user }}"
+    volumes:
+      - alien-admin-db-backups:/backups
+      - alien-admin-db-data:/var/lib/mysql
+
+- name: alien-admin drupal
+  docker_container:
+    image: drupal:8
+    name: alien-admin-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ alien_admin_hosts }}"
+      MYSQL_DATABASE: "{{ alien_admin.db.name }}"
+      MYSQL_PASSWORD: "{{ alien_admin.db.password }}"
+      MYSQL_USER: "{{ alien_admin.db.user }}"
+      VIRTUAL_HOST: "{{ alien_admin_hosts }}"
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "alien-admin-db:mysql"
+    volumes:
+      - alien-admin-content:/var/www/html
+
+- name: alien-admin sftp
+  docker_container:
+    command: "{{ alien_admin.sftp.user }}:{{ alien_admin.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: alien-admin-ftp
+    state: started
+    ports:
+      - "{{ alien_admin_sftp_port }}:22"
+    volumes:
+      - alien-admin-content:/home/alien/upload

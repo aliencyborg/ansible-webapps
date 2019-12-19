@@ -1,0 +1,70 @@
+---
+- name: wp-demo db backups container
+  docker_container:
+    image: mariadb:10
+    name: wp-demo-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: wp-demo wordpress content container
+  docker_container:
+    image: wordpress:5.3
+    name: wp-demo-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: wp-demo db data container
+  docker_container:
+    image: mariadb:10
+    name: wp-demo-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: wp-demo database
+  docker_container:
+    image: mariadb:10
+    name: wp-demo-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ wordpress_demo.db.name }}"
+      MYSQL_PASSWORD: "{{ wordpress_demo.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ wordpress_demo.db.user }}"
+    volumes:
+      - wp-demo-db-backups:/backups
+      - wp-demo-db-data:/var/lib/mysql
+
+- name: wp-demo wordpress
+  docker_container:
+    image: wordpress:5.3
+    name: wp-demo-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ wordpress_demo_hosts }}"
+      VIRTUAL_HOST: "{{ wordpress_demo_hosts }}"
+      MYSQL_DB_NAME: "{{ wordpress_demo.db.name }}"
+      MYSQL_DB_PASSWORD: "{{ wordpress_demo.db.password }}"
+      MYSQL_DB_USER: "{{ wordpress_demo.db.user }}"
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "wp-demo-db:mysql"
+    volumes:
+      - wp-demo-content:/var/www/html
+
+- name: wp-demo sftp
+  docker_container:
+    command: "{{ wordpress_demo.sftp.user }}:{{ wordpress_demo.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: wp-demo-ftp
+    state: started
+    ports:
+      - "{{ wordpress_demo_sftp_port }}:22"
+    volumes:
+      - wp-demo-content:/home/alien/upload
