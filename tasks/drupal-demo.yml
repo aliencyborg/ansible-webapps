@@ -1,11 +1,5 @@
 ---
-- name: copy drupal-demo.env file to remote folder
-  copy:
-    src: env_files/drupal-demo.env
-    dest: "{{ workdir }}/drupal-demo.env"
-  tags: stage
-
-- name: drupal-demo backups container
+- name: drupal-demo db backups container
   docker_container:
     image: mariadb:10
     name: drupal-demo-db-backups
@@ -13,7 +7,7 @@
     volumes:
       - /backups
 
-- name: drupal-demo content container
+- name: drupal-demo drupal content container
   docker_container:
     image: drupal:8
     name: drupal-demo-content
@@ -21,7 +15,7 @@
     volumes:
       - /var/www/html
 
-- name: drupal-demo data container
+- name: drupal-demo db data container
   docker_container:
     image: mariadb:10
     name: drupal-demo-db-data
@@ -29,26 +23,33 @@
     volumes:
       - /var/lib/mysql
 
-- name: drupal-demo db
+- name: drupal-demo database
   docker_container:
-    env_file: "{{ workdir }}/drupal-demo.env"
     image: mariadb:10
     name: drupal-demo-db
     state: started
+    env:
+      MYSQL_DATABASE: "{{ drupal_demo.db.name }}"
+      MYSQL_PASSWORD: "{{ drupal_demo.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ drupal_demo.db.user }}"
     volumes:
       - drupal-demo-db-backups:/backups
       - drupal-demo-db-data:/var/lib/mysql
 
-- name: drupal-demo web
+- name: drupal-demo drupal
   docker_container:
-    env_file: "{{ workdir }}/drupal-demo.env"
     image: drupal:8
     name: drupal-demo-web
     restart: yes
     state: started
     env:
-      LETSENCRYPT_HOST: "{{ drupal_demo_domain }}"
-      VIRTUAL_HOST: "{{ drupal_demo_domain }}"
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ drupal_demo_hosts }}"
+      MYSQL_DATABASE: "{{ drupal_demo.db.name }}"
+      MYSQL_PASSWORD: "{{ drupal_demo.db.password }}"
+      MYSQL_USER: "{{ drupal_demo.db.user }}"
+      VIRTUAL_HOST: "{{ drupal_demo_hosts }}"
     exposed_ports:
       - "80"
       - "443"
@@ -57,13 +58,13 @@
     volumes:
       - drupal-demo-content:/var/www/html
 
-- name: drupal-demo ftp
+- name: drupal-demo sftp
   docker_container:
-    command: "{{ drupal_demo_username }}:{{ drupal_demo_password }}:1001"
+    command: "{{ drupal_demo.sftp.user }}:{{ drupal_demo.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: drupal-demo-ftp
     state: started
     ports:
       - "{{ drupal_demo_sftp_port }}:22"
     volumes:
-      - drupal-demo-content:/home/alien/upload
+      - drupal-demo-content:/home/ddemo/upload

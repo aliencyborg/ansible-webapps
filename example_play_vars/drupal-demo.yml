@@ -1,0 +1,8 @@
+drupal_demo:
+  db:
+    name: drupaldemodb
+    password: drupaldemodbpw 
+    user: drupaldemo
+  sftp:
+    password: drupaldemosftppw
+    user: drupaldemo

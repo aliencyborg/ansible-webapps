@@ -1,20 +1,18 @@
 ---
-- hosts: webservers
-  remote_user: "{{ username }}"
-  tasks:
-    - name: ensure webapps workdir is present
-      file:
-        group: "{{ usergroup }}"
-        owner: "{{ username }}"
-        path: "{{ workdir }}"
-        state: directory
-
 - hosts: east
-  remote_user: "{{ username }}"
   tasks:
     - include: tasks/my-market-mentor.yml
+    - include: tasks/wordpress-demo.yml
+  vars_files:
+    - play_vars/my-market-mentor.yml
+    - play_vars/wordpress-demo.yml
 
 - hosts: west
-  remote_user: "{{ username }}"
   tasks:
+    - include: tasks/alien-admin.yml
     - include: tasks/drupal-demo.yml
+    - include: tasks/wordpress-demo.yml
+  vars_files:
+    - play_vars/alien-admin.yml
+    - play_vars/drupal-demo.yml
+    - play_vars/wordpress-demo.yml

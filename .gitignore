@@ -3,9 +3,8 @@
 hosts
 hosts.yml
 
-/env_files/*.env
-!/env_files/*.example.env
 /group_vars/*.yml
 !/group_vars/*.example.yml
 /host_vars/*.yml
 !/host_vars/*.example.yml
+/play_vars/*.yml

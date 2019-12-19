@@ -1,0 +1,20 @@
+---
+alien_admin:
+  hosts: "myalienadmin.com,www.myalienadmin.com"
+  sftp:
+    port: 55001
+
+drupal_demo:
+  hosts: "mydrupal.org,www.mydrupal.org"
+  sftp:
+    port: 55002
+
+my_market_mentor:
+  hosts: "mymymarket.net,www.mymymarket.net"
+  sftp:
+    port: 55003
+
+wordpress_demo:
+  hosts: "mywordpress.biz,www.mywordpress.biz"
+  sftp:
+    port: 55004

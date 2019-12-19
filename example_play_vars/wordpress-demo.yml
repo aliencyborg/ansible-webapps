@@ -1,0 +1,8 @@
+wordpress_demo:
+  db:
+    name: wpdemodb
+    password: wpdemodbpw
+    user: wpdemo
+  sftp:
+    password: wpdemosftppw
+    user: wpdemo
