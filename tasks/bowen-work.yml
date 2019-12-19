@@ -1,0 +1,70 @@
+---
+- name: bown-work db backups container
+  docker_container:
+    image: mariadb:10
+    name: bown-work-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: bown-work wordpress content container
+  docker_container:
+    image: wordpress:5.3
+    name: bown-work-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: bown-work db data container
+  docker_container:
+    image: mariadb:10
+    name: bown-work-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: bown-work database
+  docker_container:
+    image: mariadb:10
+    name: bown-work-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ bowen_work.db.name }}"
+      MYSQL_PASSWORD: "{{ bowen_work.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ bowen_work.db.user }}"
+    volumes:
+      - bown-work-db-backups:/backups
+      - bown-work-db-data:/var/lib/mysql
+
+- name: bown-work wordpress
+  docker_container:
+    image: wordpress:5.3
+    name: bown-work-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
+      VIRTUAL_HOST: "{{ bowen_work_hosts }}"
+      MYSQL_DB_NAME: "{{ bowen_work.db.name }}"
+      MYSQL_DB_PASSWORD: "{{ bowen_work.db.password }}"
+      MYSQL_DB_USER: "{{ bowen_work.db.user }}"
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "bown-work-db:mysql"
+    volumes:
+      - bown-work-content:/var/www/html
+
+- name: bown-work sftp
+  docker_container:
+    command: "{{ bowen_work.sftp.user }}:{{ bowen_work.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: bown-work-ftp
+    state: started
+    ports:
+      - "{{ bowen_work_sftp_port }}:22"
+    volumes:
+      - bown-work-content:/home/alien/upload
