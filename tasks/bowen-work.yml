@@ -1,32 +1,32 @@
 ---
-- name: bown-work db backups container
+- name: bowen-work db backups container
   docker_container:
     image: mariadb:10
-    name: bown-work-db-backups
+    name: bowen-work-db-backups
     state: present
     volumes:
       - /backups
 
-- name: bown-work wordpress content container
+- name: bowen-work wordpress content container
   docker_container:
     image: wordpress:5.3
-    name: bown-work-content
+    name: bowen-work-content
     state: present
     volumes:
       - /var/www/html
 
-- name: bown-work db data container
+- name: bowen-work db data container
   docker_container:
     image: mariadb:10
-    name: bown-work-db-data
+    name: bowen-work-db-data
     state: present
     volumes:
       - /var/lib/mysql
 
-- name: bown-work database
+- name: bowen-work database
   docker_container:
     image: mariadb:10
-    name: bown-work-db
+    name: bowen-work-db
     state: started
     env:
       MYSQL_DATABASE: "{{ bowen_work.db.name }}"
@@ -34,13 +34,13 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ bowen_work.db.user }}"
     volumes:
-      - bown-work-db-backups:/backups
-      - bown-work-db-data:/var/lib/mysql
+      - bowen-work-db-backups:/backups
+      - bowen-work-db-data:/var/lib/mysql
 
-- name: bown-work wordpress
+- name: bowen-work wordpress
   docker_container:
     image: wordpress:5.3
-    name: bown-work-web
+    name: bowen-work-web
     restart: yes
     state: started
     env:
@@ -54,17 +54,17 @@
       - "80"
       - "443"
     links:
-      - "bown-work-db:mysql"
+      - "bowen-work-db:mysql"
     volumes:
-      - bown-work-content:/var/www/html
+      - bowen-work-content:/var/www/html
 
-- name: bown-work sftp
+- name: bowen-work sftp
   docker_container:
     command: "{{ bowen_work.sftp.user }}:{{ bowen_work.sftp.password }}:1001"
     image: atmoz/sftp:latest
-    name: bown-work-ftp
+    name: bowen-work-ftp
     state: started
     ports:
       - "{{ bowen_work_sftp_port }}:22"
     volumes:
-      - bown-work-content:/home/alien/upload
+      - bowen-work-content:/home/alien/upload

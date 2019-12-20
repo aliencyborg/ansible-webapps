@@ -1,20 +1,20 @@
 ---
 - hosts: east
   tasks:
+    - include: tasks/bowen-work.yml
     - include: tasks/my-market-mentor.yml
     - include: tasks/wordpress-demo.yml
   vars_files:
+    - play_vars/bowen-work.yml
     - play_vars/my-market-mentor.yml
     - play_vars/wordpress-demo.yml
 
 - hosts: west
   tasks:
     - include: tasks/alien-admin.yml
-    - include: tasks/bowen-work.yml
     - include: tasks/drupal-demo.yml
     - include: tasks/wordpress-demo.yml
   vars_files:
     - play_vars/alien-admin.yml
-    - play_vars/bowen-work.yml
     - play_vars/drupal-demo.yml
     - play_vars/wordpress-demo.yml
