@@ -47,9 +47,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
       VIRTUAL_HOST: "{{ bowen_work_hosts }}"
-      MYSQL_DB_NAME: "{{ bowen_work.db.name }}"
-      MYSQL_DB_PASSWORD: "{{ bowen_work.db.password }}"
-      MYSQL_DB_USER: "{{ bowen_work.db.user }}"
+      WORDPRESS_DB_NAME: "{{ bowen_work.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ bowen_work.db.password }}"
+      WORDPRESS_DB_USER: "{{ bowen_work.db.user }}"
     exposed_ports:
       - "80"
       - "443"
@@ -68,3 +68,4 @@
       - "{{ bowen_work_sftp_port }}:22"
     volumes:
       - bowen-work-content:/home/alien/upload
+

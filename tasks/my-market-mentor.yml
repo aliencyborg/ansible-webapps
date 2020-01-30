@@ -47,9 +47,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ my_market_mentor_hosts }}"
       VIRTUAL_HOST: "{{ my_market_mentor_hosts }}"
-      MYSQL_DB_NAME: "{{ my_market_mentor.db.name }}"
-      MYSQL_DB_PASSWORD: "{{ my_market_mentor.db.password }}"
-      MYSQL_DB_USER: "{{ my_market_mentor.db.user }}"
+      WORDPRESS_DB_NAME: "{{ my_market_mentor.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ my_market_mentor.db.password }}"
+      WORDPRESS_DB_USER: "{{ my_market_mentor.db.user }}"
     exposed_ports:
       - "80"
       - "443"
@@ -68,3 +68,4 @@
       - "{{ my_market_mentor_sftp_port }}:22"
     volumes:
       - mmm-content:/home/alien/upload
+

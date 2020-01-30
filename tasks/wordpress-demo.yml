@@ -47,9 +47,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ wordpress_demo_hosts }}"
       VIRTUAL_HOST: "{{ wordpress_demo_hosts }}"
-      MYSQL_DB_NAME: "{{ wordpress_demo.db.name }}"
-      MYSQL_DB_PASSWORD: "{{ wordpress_demo.db.password }}"
-      MYSQL_DB_USER: "{{ wordpress_demo.db.user }}"
+      WORDPRESS_DB_NAME: "{{ wordpress_demo.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ wordpress_demo.db.password }}"
+      WORDPRESS_DB_USER: "{{ wordpress_demo.db.user }}"
     exposed_ports:
       - "80"
       - "443"
@@ -68,3 +68,4 @@
       - "{{ wordpress_demo_sftp_port }}:22"
     volumes:
       - wp-demo-content:/home/alien/upload
+
