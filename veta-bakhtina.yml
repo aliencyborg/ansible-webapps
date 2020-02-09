@@ -1,0 +1,71 @@
+---
+- name: veta-wp db backups container
+  docker_container:
+    image: mariadb:10
+    name: veta-wp-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: veta-wp wordpress content container
+  docker_container:
+    image: wordpress:5.3
+    name: veta-wp-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: veta-wp db data container
+  docker_container:
+    image: mariadb:10
+    name: veta-wp-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: veta-wp database
+  docker_container:
+    image: mariadb:10
+    name: veta-wp-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ veta_bakhtina.db.name }}"
+      MYSQL_PASSWORD: "{{ veta_bakhtina.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ veta_bakhtina.db.user }}"
+    volumes:
+      - veta-wp-db-backups:/backups
+      - veta-wp-db-data:/var/lib/mysql
+
+- name: veta-wp wordpress
+  docker_container:
+    image: wordpress:5.3
+    name: veta-wp-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ veta_bakhtina_hosts }}"
+      VIRTUAL_HOST: "{{ veta_bakhtina_hosts }}"
+      WORDPRESS_DB_NAME: "{{ veta_bakhtina.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ veta_bakhtina.db.password }}"
+      WORDPRESS_DB_USER: "{{ veta_bakhtina.db.user }}"
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "veta-wp-db:mysql"
+    volumes:
+      - veta-wp-content:/var/www/html
+
+- name: veta-wp sftp
+  docker_container:
+    command: "{{ veta_bakhtina.sftp.user }}:{{ veta_bakhtina.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: veta-wp-ftp
+    state: started
+    ports:
+      - "{{ veta_bakhtina_sftp_port }}:22"
+    volumes:
+      - veta-wp-content:/home/alien/upload
+
