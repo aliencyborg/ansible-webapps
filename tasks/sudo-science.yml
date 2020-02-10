@@ -47,14 +47,14 @@
     state: started
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ sudo_science_api_host }}"
-      VIRTUAL_HOST: "{{ sudo_science_api_host }}"
+      LETSENCRYPT_HOST: "{{ sudo_science_api_hosts }}"
+      VIRTUAL_HOST: "{{ sudo_science_api_hosts }}"
       database__client: mysql
       database__connection__database: "{{ sudo_science.db.name }}"
       database__connection__host: mysql
       database__connection__password: "{{ sudo_science.db.password }}"
       database__connection__user: "{{ sudo_science.db.user }}"
-      url: "{{ sudo_science_api_host }}"
+      url: "{{ sudo_science_api_url }}"
     links:
       - "sudo-science-db:mysql"
     ports:
