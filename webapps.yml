@@ -2,7 +2,9 @@
 - hosts: east
   tasks:
     - include: tasks/my-market-mentor.yml
+      tags: mmm
     - include: tasks/wordpress-demo.yml
+      tags: wordpress-demo
   vars_files:
     - play_vars/my-market-mentor.yml
     - play_vars/wordpress-demo.yml
@@ -10,10 +12,15 @@
 - hosts: west
   tasks:
     - include: tasks/alien-admin.yml
+      tags: alien-admin
     - include: tasks/bowen-work.yml
+      tags: bowen-work
     - include: tasks/drupal-demo.yml
+      tags: drupal-demo
     - include: tasks/sudo-science.yml
+      tags: sudo-science
     - include: tasks/wordpress-demo.yml
+      tags: wordpress-demo
   vars_files:
     - play_vars/alien-admin.yml
     - play_vars/bowen-work.yml
