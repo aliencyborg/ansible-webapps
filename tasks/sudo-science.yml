@@ -49,15 +49,16 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ sudo_science_api_hosts }}"
       VIRTUAL_HOST: "{{ sudo_science_api_hosts }}"
+      VIRTUAL_PORT: "2368"
       database__client: mysql
       database__connection__database: "{{ sudo_science.db.name }}"
       database__connection__host: mysql
       database__connection__password: "{{ sudo_science.db.password }}"
       database__connection__user: "{{ sudo_science.db.user }}"
       url: "{{ sudo_science_api_url }}"
+    exposed_ports:
+      - "2368"
     links:
       - "sudo-science-db:mysql"
-    ports:
-      "2368:80"
     volumes:
       - sudo-science-content:/var/www/html
