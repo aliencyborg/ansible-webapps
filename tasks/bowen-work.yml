@@ -52,7 +52,6 @@
       WORDPRESS_DB_USER: "{{ bowen_work.db.user }}"
     exposed_ports:
       - "80"
-      - "443"
     links:
       - "bowen-work-db:mysql"
     volumes:

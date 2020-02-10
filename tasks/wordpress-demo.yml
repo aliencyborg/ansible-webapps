@@ -52,7 +52,6 @@
       WORDPRESS_DB_USER: "{{ wordpress_demo.db.user }}"
     exposed_ports:
       - "80"
-      - "443"
     links:
       - "wp-demo-db:mysql"
     volumes:

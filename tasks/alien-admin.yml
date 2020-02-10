@@ -52,7 +52,6 @@
       VIRTUAL_HOST: "{{ alien_admin_hosts }}"
     exposed_ports:
       - "80"
-      - "443"
     links:
       - "alien-admin-db:mysql"
     volumes:
@@ -64,7 +63,7 @@
     image: atmoz/sftp:latest
     name: alien-admin-ftp
     state: started
-    ports:
+    published_ports:
       - "{{ alien_admin_sftp_port }}:22"
     volumes:
       - alien-admin-content:/home/alien/upload

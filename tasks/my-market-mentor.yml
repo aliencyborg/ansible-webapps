@@ -52,7 +52,6 @@
       WORDPRESS_DB_USER: "{{ my_market_mentor.db.user }}"
     exposed_ports:
       - "80"
-      - "443"
     links:
       - "mmm-db:mysql"
     volumes:

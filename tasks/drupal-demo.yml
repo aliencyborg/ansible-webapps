@@ -52,7 +52,6 @@
       VIRTUAL_HOST: "{{ drupal_demo_hosts }}"
     exposed_ports:
       - "80"
-      - "443"
     links:
       - "drupal-demo-db:mysql"
     volumes:
