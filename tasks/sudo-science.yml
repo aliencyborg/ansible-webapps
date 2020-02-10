@@ -1,0 +1,60 @@
+---
+- name: sudo-science db backups container
+  docker_container:
+    image: mariadb:10
+    name: sudo-science-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: sudo-science ghost content container
+  docker_container:
+    image: ghost:3
+    name: sudo-science-content
+    state: present
+    volumes:
+      - /var/lib/ghost/content
+
+- name: sudo-science db data container
+  docker_container:
+    image: mariadb:10
+    name: sudo-science-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: sudo-science database
+  docker_container:
+    image: mariadb:10
+    name: sudo-science-db
+    restart: yes
+    restart_policy: always
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ sudo_science.db.name }}"
+      MYSQL_PASSWORD: "{{ sudo_science.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ sudo_science.db.user }}"
+    volumes:
+      - sudo-science-db-backups:/backups
+      - sudo-science-db-data:/var/lib/mysql
+
+- name: sudo-science ghost api
+  docker_container:
+    image: ghost:3
+    name: sudo-science-api
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ sudo_science_api_hosts }}"
+      VIRTUAL_HOST: "{{ sudo_science_api_hosts }}"
+      database__client: mysql
+      database__connection__database: "{{ sudo_science.db.name }}"
+      database__connection__host: sudo-science-db
+      database__connection__password: "{{ sudo_science.db.password }}"
+      database__connection__user: "{{ sudo_science.db.user }}"
+    ports:
+      "2368:80"
+    volumes:
+      - sudo-science-content:/var/www/html

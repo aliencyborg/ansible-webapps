@@ -12,9 +12,11 @@
     - include: tasks/alien-admin.yml
     - include: tasks/bowen-work.yml
     - include: tasks/drupal-demo.yml
+    - include: tasks/sudo-science.yml
     - include: tasks/wordpress-demo.yml
   vars_files:
     - play_vars/alien-admin.yml
     - play_vars/bowen-work.yml
     - play_vars/drupal-demo.yml
+    - play_vars/sudo-science.yml
     - play_vars/wordpress-demo.yml
