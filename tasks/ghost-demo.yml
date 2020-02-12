@@ -49,15 +49,12 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ ghost_demo_hosts }}"
       VIRTUAL_HOST: "{{ ghost_demo_hosts }}"
-      VIRTUAL_PORT: "2368"
       database__client: mysql
       database__connection__database: "{{ ghost_demo.db.name }}"
       database__connection__host: mysql
       database__connection__password: "{{ ghost_demo.db.password }}"
       database__connection__user: "{{ ghost_demo.db.user }}"
       url: "{{ ghost_demo_url }}"
-    exposed_ports:
-      - "2368"
     links:
       - "ghost-demo-db:mysql"
     volumes:
