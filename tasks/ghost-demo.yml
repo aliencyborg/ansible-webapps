@@ -1,0 +1,64 @@
+---
+- name: ghost-demo db backups container
+  docker_container:
+    image: mariadb:10
+    name: ghost-demo-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: ghost-demo ghost content container
+  docker_container:
+    image: ghost:3
+    name: ghost-demo-content
+    state: present
+    volumes:
+      - /var/lib/ghost/content
+
+- name: ghost-demo db data container
+  docker_container:
+    image: mariadb:10
+    name: ghost-demo-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: ghost-demo database
+  docker_container:
+    image: mariadb:10
+    name: ghost-demo-db
+    restart: yes
+    restart_policy: always
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ ghost_demo.db.name }}"
+      MYSQL_PASSWORD: "{{ ghost_demo.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ ghost_demo.db.user }}"
+    volumes:
+      - ghost-demo-db-backups:/backups
+      - ghost-demo-db-data:/var/lib/mysql
+
+- name: ghost-demo ghost
+  docker_container:
+    image: ghost:3
+    name: ghost-demo
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ ghost_demo_hosts }}"
+      VIRTUAL_HOST: "{{ ghost_demo_hosts }}"
+      VIRTUAL_PORT: "2368"
+      database__client: mysql
+      database__connection__database: "{{ ghost_demo.db.name }}"
+      database__connection__host: mysql
+      database__connection__password: "{{ ghost_demo.db.password }}"
+      database__connection__user: "{{ ghost_demo.db.user }}"
+      url: "{{ ghost_demo_url }}"
+    exposed_ports:
+      - "2368"
+    links:
+      - "ghost-demo-db:mysql"
+    volumes:
+      - ghost-demo-content:/var/www/html
