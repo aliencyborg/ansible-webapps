@@ -3,10 +3,13 @@
   tasks:
     - include: tasks/my-market-mentor.yml
       tags: mmm
+    - include: tasks/platypus.yml
+      tags: platypus
     - include: tasks/wordpress-demo.yml
       tags: wordpress-demo
   vars_files:
     - play_vars/my-market-mentor.yml
+    - play_vars/platypus.yml
     - play_vars/wordpress-demo.yml
 
 - hosts: west
