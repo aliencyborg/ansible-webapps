@@ -1,0 +1,69 @@
+---
+- name: just-us db backups container
+  docker_container:
+    image: mariadb:10
+    name: just-us-db-backups
+    state: present
+    volumes:
+      - /backups
+
+- name: just-us wordpress content container
+  docker_container:
+    image: wordpress:5.4
+    name: just-us-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: just-us db data container
+  docker_container:
+    image: mariadb:10
+    name: just-us-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: just-us database
+  docker_container:
+    image: mariadb:10
+    name: just-us-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ just_us.db.name }}"
+      MYSQL_PASSWORD: "{{ just_us.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ just_us.db.user }}"
+    volumes:
+      - just-us-db-backups:/backups
+      - just-us-db-data:/var/lib/mysql
+
+- name: just-us wordpress
+  docker_container:
+    image: wordpress:5.4
+    name: just-us-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ just_us_hosts }}"
+      VIRTUAL_HOST: "{{ just_us_hosts }}"
+      WORDPRESS_DB_NAME: "{{ just_us.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ just_us.db.password }}"
+      WORDPRESS_DB_USER: "{{ just_us.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "just-us-db:mysql"
+    volumes:
+      - just-us-content:/var/www/html
+
+- name: just-us sftp
+  docker_container:
+    command: "{{ just_us.sftp.user }}:{{ just_us.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: just-us-ftp
+    state: started
+    ports:
+      - "{{ just_us_sftp_port }}:22"
+    volumes:
+      - just-us-content:/home/justusftp/upload
