@@ -39,23 +39,23 @@
       - sudo-science-db-backups:/backups
       - sudo-science-db-data:/var/lib/mysql
 
-- name: sudo-science ghost api
+- name: sudo-science ghost
   docker_container:
     image: ghost:3
-    name: sudo-science-api
+    name: sudo-science-ghost
     restart: yes
     state: started
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ sudo_science_api_hosts }}"
-      VIRTUAL_HOST: "{{ sudo_science_api_hosts }}"
+      LETSENCRYPT_HOST: "{{ sudo_science_ghost_hosts }}"
+      VIRTUAL_HOST: "{{ sudo_science_ghost_hosts }}"
       VIRTUAL_PORT: "2368"
       database__client: mysql
       database__connection__database: "{{ sudo_science.db.name }}"
       database__connection__host: mysql
       database__connection__password: "{{ sudo_science.db.password }}"
       database__connection__user: "{{ sudo_science.db.user }}"
-      url: "{{ sudo_science_api_url }}"
+      url: "{{ sudo_science_ghost_url }}"
     exposed_ports:
       - "2368"
     links:
