@@ -1,0 +1,60 @@
+---
+- name: drupaul drupal content container
+  docker_container:
+    image: drupal:7
+    name: drupaul-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: drupaul db data container
+  docker_container:
+    image: mariadb:10
+    name: drupaul-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: drupaul database
+  docker_container:
+    image: mariadb:10
+    name: drupaul-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ drupaul.db.name }}"
+      MYSQL_PASSWORD: "{{ drupaul.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ drupaul.db.user }}"
+    volumes:
+      - drupaul-db-data:/var/lib/mysql
+
+- name: drupaul drupal
+  docker_container:
+    image: drupal:7
+    name: drupaul-web
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ drupaul_hosts }}"
+      MYSQL_DATABASE: "{{ drupaul.db.name }}"
+      MYSQL_PASSWORD: "{{ drupaul.db.password }}"
+      MYSQL_USER: "{{ drupaul.db.user }}"
+      VIRTUAL_HOST: "{{ drupaul_hosts }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "drupaul-db:mysql"
+    volumes:
+      - drupaul-content:/var/www/html
+
+- name: drupaul sftp
+  docker_container:
+    command: "{{ drupaul.sftp.user }}:{{ drupaul.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: drupaul-ftp
+    state: started
+    ports:
+      - "{{ drupaul_sftp_port }}:22"
+    volumes:
+      - drupaul-content:/home/drupaul/upload
