@@ -1,0 +1,72 @@
+---
+# TODO: rebuild the backer-upper container
+
+- name: biscuit-backups container
+  docker_container:
+    image: mariadb:10.4
+    name: biscuitman-db-backups
+    state: present
+    volumes:
+      - /db
+
+- name: biscuit wordpress content container
+  docker_container:
+    image: wordpress:5.4.1
+    name: biscuitman-content
+    state: present
+    volumes:
+      - /var/www/html
+
+- name: biscuit db data container
+  docker_container:
+    image: mariadb:10.4
+    name: biscuitman-db-data
+    state: present
+    volumes:
+      - /var/lib/mysql
+
+- name: biscuit database
+  docker_container:
+    image: mariadb:10.4
+    name: biscuitman-db
+    state: started
+    env:
+      MYSQL_DATABASE: "{{ biscuitman.db.name }}"
+      MYSQL_PASSWORD: "{{ biscuitman.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ biscuitman.db.user }}"
+    volumes:
+      - biscuitman-db-backups:/backups
+      - biscuitman-db-data:/var/lib/mysql
+
+- name: biscuit wordpress
+  docker_container:
+    image: wordpress:5.4.1
+    name: biscuitman-wp
+    restart: yes
+    state: started
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ biscuitman_hosts }}"
+      VIRTUAL_HOST: "{{ biscuitman_hosts }}"
+      WORDPRESS_DB_NAME: "{{ biscuitman.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ biscuitman.db.password }}"
+      WORDPRESS_DB_USER: "{{ biscuitman.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "biscuitman-db:mysql"
+    volumes:
+      - biscuitman-content:/var/www/html
+
+- name: biscuit sftp
+  docker_container:
+    command: "{{ biscuitman.sftp.user }}:{{ biscuitman.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: biscuitman-ftp
+    state: started
+    ports:
+      - "{{ biscuitman_sftp_port }}:22"
+    volumes:
+      - biscuitman-content:/home/alien/upload
+
