@@ -28,7 +28,6 @@
     image: mariadb:10.4
     name: ctp-wp-db
     restart_policy: always
-    state: started
     env:
       MYSQL_PASSWORD: "{{ platypus.db.password }}"
       MYSQL_ROOT_PASSWORD: "{{ platypus.db.password }}"
@@ -42,7 +41,6 @@
     name: ctp-wp-wp
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ platypus_hosts }}"
@@ -59,7 +57,6 @@
     image: atmoz/sftp:latest
     name: ctp-wp-ftp
     restart_policy: always
-    state: started
     published_ports:
       - "{{ platypus_sftp_port }}:22"
     volumes:

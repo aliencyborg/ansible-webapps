@@ -28,7 +28,6 @@
     image: mariadb:10
     name: mmm-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ my_market_mentor.db.name }}"
       MYSQL_PASSWORD: "{{ my_market_mentor.db.password }}"
@@ -44,7 +43,6 @@
     name: mmm-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ my_market_mentor_hosts }}"
@@ -65,7 +63,6 @@
     image: atmoz/sftp:latest
     name: mmm-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ my_market_mentor_sftp_port }}:22"
     volumes:

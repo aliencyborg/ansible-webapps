@@ -29,7 +29,6 @@
     name: ghost-demo-db
     restart: yes
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ ghost_demo.db.name }}"
       MYSQL_PASSWORD: "{{ ghost_demo.db.password }}"
@@ -45,7 +44,6 @@
     name: ghost-demo
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ ghost_demo_hosts }}"

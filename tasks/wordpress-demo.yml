@@ -28,7 +28,6 @@
     image: mariadb:10
     name: wp-demo-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ wordpress_demo.db.name }}"
       MYSQL_PASSWORD: "{{ wordpress_demo.db.password }}"
@@ -44,7 +43,6 @@
     name: wp-demo-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ wordpress_demo_hosts }}"
@@ -65,7 +63,6 @@
     image: atmoz/sftp:latest
     name: wp-demo-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ wordpress_demo_sftp_port }}:22"
     volumes:

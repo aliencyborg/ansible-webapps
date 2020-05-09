@@ -30,7 +30,6 @@
     image: mariadb:10.4
     name: biscuitman-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ biscuitman.db.name }}"
       MYSQL_PASSWORD: "{{ biscuitman.db.password }}"
@@ -46,7 +45,6 @@
     name: biscuitman-wp
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ biscuitman_hosts }}"
@@ -67,7 +65,6 @@
     image: atmoz/sftp:latest
     name: biscuitman-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ biscuitman_sftp_port }}:22"
     volumes:

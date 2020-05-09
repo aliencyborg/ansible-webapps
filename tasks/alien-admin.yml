@@ -28,7 +28,6 @@
     image: mariadb:10
     name: alien-admin-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ alien_admin.db.name }}"
       MYSQL_PASSWORD: "{{ alien_admin.db.password }}"
@@ -44,7 +43,6 @@
     name: alien-admin-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ alien_admin_hosts }}"
@@ -65,7 +63,6 @@
     image: atmoz/sftp:latest
     name: alien-admin-ftp
     restart_policy: always
-    state: started
     published_ports:
       - "{{ alien_admin_sftp_port }}:22"
     volumes:

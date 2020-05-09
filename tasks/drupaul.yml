@@ -20,7 +20,6 @@
     image: mariadb:10
     name: drupaul-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ drupaul.db.name }}"
       MYSQL_PASSWORD: "{{ drupaul.db.password }}"
@@ -35,7 +34,6 @@
     name: drupaul-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ drupaul_hosts }}"
@@ -56,7 +54,6 @@
     image: atmoz/sftp:latest
     name: drupaul-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ drupaul_sftp_port }}:22"
     volumes:

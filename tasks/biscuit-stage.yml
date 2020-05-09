@@ -18,7 +18,6 @@
   docker_container:
     image: mariadb:10.2
     name: biscuit-stage-db
-    state: started
     env:
       MYSQL_DATABASE: "{{ biscuit_stage.db.name }}"
       MYSQL_PASSWORD: "{{ biscuit_stage.db.password }}"
@@ -32,7 +31,6 @@
     image: wordpress:4.8-php7.1
     name: biscuit-stage-wp
     restart: yes
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ biscuit_stage_hosts }}"

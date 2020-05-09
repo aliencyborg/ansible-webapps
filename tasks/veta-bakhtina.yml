@@ -28,7 +28,6 @@
     image: mariadb:10
     name: veta-wp-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ veta_bakhtina.db.name }}"
       MYSQL_PASSWORD: "{{ veta_bakhtina.db.password }}"
@@ -44,7 +43,6 @@
     name: veta-wp-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ veta_bakhtina_hosts }}"
@@ -66,7 +64,6 @@
     image: atmoz/sftp:latest
     name: veta-wp-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ veta_bakhtina_sftp_port }}:22"
     volumes:

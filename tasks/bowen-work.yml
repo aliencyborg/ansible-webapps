@@ -28,7 +28,6 @@
     image: mariadb:10
     name: bowen-work-db
     restart_policy: always
-    state: started
     env:
       MYSQL_DATABASE: "{{ bowen_work.db.name }}"
       MYSQL_PASSWORD: "{{ bowen_work.db.password }}"
@@ -44,7 +43,6 @@
     name: bowen-work-web
     restart: yes
     restart_policy: always
-    state: started
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
@@ -65,7 +63,6 @@
     image: atmoz/sftp:latest
     name: bowen-work-ftp
     restart_policy: always
-    state: started
     ports:
       - "{{ bowen_work_sftp_port }}:22"
     volumes:
