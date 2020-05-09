@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: ghost-demo-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: ghost:3
     name: ghost-demo-content
-    state: present
+    state: stopped
     volumes:
       - /var/lib/ghost/content
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: ghost-demo-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -44,6 +44,7 @@
     image: ghost:3
     name: ghost-demo
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"

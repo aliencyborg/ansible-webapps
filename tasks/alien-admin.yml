@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: alien-admin-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: drupal:8
     name: alien-admin-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: alien-admin-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10
     name: alien-admin-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ alien_admin.db.name }}"
@@ -42,6 +43,7 @@
     image: drupal:8
     name: alien-admin-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -62,6 +64,7 @@
     command: "{{ alien_admin.sftp.user }}:{{ alien_admin.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: alien-admin-ftp
+    restart_policy: always
     state: started
     published_ports:
       - "{{ alien_admin_sftp_port }}:22"

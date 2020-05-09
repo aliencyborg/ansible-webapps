@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: veta-wp-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: wordpress:5.3
     name: veta-wp-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: veta-wp-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10
     name: veta-wp-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ veta_bakhtina.db.name }}"
@@ -42,6 +43,7 @@
     image: wordpress:5.3
     name: veta-wp-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -63,6 +65,7 @@
     command: "{{ veta_bakhtina.sftp.user }}:{{ veta_bakhtina.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: veta-wp-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ veta_bakhtina_sftp_port }}:22"

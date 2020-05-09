@@ -2,7 +2,7 @@
   docker_container:
     image: wordpress:4.8-php7.1
     name: biscuit-stage-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -10,7 +10,7 @@
   docker_container:
     image: mariadb:10.2
     name: biscuit-stage-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 

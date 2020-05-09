@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: bowen-work-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: wordpress:5.3
     name: bowen-work-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: bowen-work-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10
     name: bowen-work-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ bowen_work.db.name }}"
@@ -42,6 +43,7 @@
     image: wordpress:5.3
     name: bowen-work-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -62,6 +64,7 @@
     command: "{{ bowen_work.sftp.user }}:{{ bowen_work.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: bowen-work-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ bowen_work_sftp_port }}:22"

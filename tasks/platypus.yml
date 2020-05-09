@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10.4
     name: ctp-wp-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: wordpress:5.2
     name: ctp-wp-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10.4
     name: ctp-wp-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10.4
     name: ctp-wp-db
+    restart_policy: always
     state: started
     env:
       MYSQL_PASSWORD: "{{ platypus.db.password }}"
@@ -40,6 +41,7 @@
     image: wordpress:5.2
     name: ctp-wp-wp
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -56,6 +58,7 @@
     command: "{{ platypus.sftp.user }}:{{ platypus.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: ctp-wp-ftp
+    restart_policy: always
     state: started
     published_ports:
       - "{{ platypus_sftp_port }}:22"

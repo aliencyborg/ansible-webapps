@@ -5,7 +5,7 @@
   docker_container:
     image: mariadb:10.4
     name: biscuitman-db-backups
-    state: present
+    state: stopped
     volumes:
       - /db
 
@@ -13,7 +13,7 @@
   docker_container:
     image: wordpress:5.4.1
     name: biscuitman-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -21,7 +21,7 @@
   docker_container:
     image: mariadb:10.4
     name: biscuitman-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -29,6 +29,7 @@
   docker_container:
     image: mariadb:10.4
     name: biscuitman-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ biscuitman.db.name }}"
@@ -44,6 +45,7 @@
     image: wordpress:5.4.1
     name: biscuitman-wp
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -64,6 +66,7 @@
     command: "{{ biscuitman.sftp.user }}:{{ biscuitman.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: biscuitman-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ biscuitman_sftp_port }}:22"

@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: mmm-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: wordpress:5.3
     name: mmm-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: mmm-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10
     name: mmm-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ my_market_mentor.db.name }}"
@@ -42,6 +43,7 @@
     image: wordpress:5.3
     name: mmm-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -62,6 +64,7 @@
     command: "{{ my_market_mentor.sftp.user }}:{{ my_market_mentor.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: mmm-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ my_market_mentor_sftp_port }}:22"

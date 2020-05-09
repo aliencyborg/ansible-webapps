@@ -3,7 +3,7 @@
   docker_container:
     image: drupal:7
     name: drupaul-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -11,7 +11,7 @@
   docker_container:
     image: mariadb:10
     name: drupaul-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -19,6 +19,7 @@
   docker_container:
     image: mariadb:10
     name: drupaul-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ drupaul.db.name }}"
@@ -33,6 +34,7 @@
     image: drupal:7
     name: drupaul-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -53,6 +55,7 @@
     command: "{{ drupaul.sftp.user }}:{{ drupaul.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: drupaul-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ drupaul_sftp_port }}:22"

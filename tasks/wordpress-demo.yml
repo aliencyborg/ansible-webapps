@@ -3,7 +3,7 @@
   docker_container:
     image: mariadb:10
     name: wp-demo-db-backups
-    state: present
+    state: stopped
     volumes:
       - /backups
 
@@ -11,7 +11,7 @@
   docker_container:
     image: wordpress:5.3
     name: wp-demo-content
-    state: present
+    state: stopped
     volumes:
       - /var/www/html
 
@@ -19,7 +19,7 @@
   docker_container:
     image: mariadb:10
     name: wp-demo-db-data
-    state: present
+    state: stopped
     volumes:
       - /var/lib/mysql
 
@@ -27,6 +27,7 @@
   docker_container:
     image: mariadb:10
     name: wp-demo-db
+    restart_policy: always
     state: started
     env:
       MYSQL_DATABASE: "{{ wordpress_demo.db.name }}"
@@ -42,6 +43,7 @@
     image: wordpress:5.3
     name: wp-demo-web
     restart: yes
+    restart_policy: always
     state: started
     env:
       HSTS: "off"
@@ -62,6 +64,7 @@
     command: "{{ wordpress_demo.sftp.user }}:{{ wordpress_demo.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: wp-demo-ftp
+    restart_policy: always
     state: started
     ports:
       - "{{ wordpress_demo_sftp_port }}:22"
