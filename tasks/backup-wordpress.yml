@@ -1,0 +1,33 @@
+---
+# become: yes
+# become_user:
+
+# vars:
+#   wpcontainer:
+#   dbcontainer:
+#   dbname:
+#   dbpassword:
+#   dbuser:
+
+- name: register timestamp
+  shell: date '+%Y%m%d%H%M%S'
+  register: timestamp
+
+- name: ensure content-backups dir exists
+  file:
+    path: "{{ wpbackupdir }}"
+    state: directory
+
+- name: ensure db-backups dir exists
+  file:
+    path: "{{ dbbackupdir }}"
+    state: directory
+
+- name: backup wp-content
+  shell: docker exec {{ wpcontainer }} tar cfz - {{ wpdirname }} > \
+    "{{ wpbackupdir }}/{{ wpcontainer }}_{{ wpdirname }}_{{ timestamp.stdout }}.tar.gz"
+
+- name: backup mysql
+  shell: docker exec {{ dbcontainer }} mysqldump -u{{ dbuser }} \
+    -p{{ dbpassword }} {{ dbname }} > \
+    "{{ dbbackupdir }}/{{ dbcontainer }}_{{ timestamp.stdout }}.sql"

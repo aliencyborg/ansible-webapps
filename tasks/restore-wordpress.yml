@@ -1,0 +1,34 @@
+---
+# become: yes
+# become_user:
+
+# vars:
+#   container:
+#   dbcontainer:
+#   dbname:
+#   dbpassword:
+#   dbuser:
+
+- name: find and register the latest content backup
+  shell: ls -At {{ wpbackupdir }} | grep {{ container }} | head -n 1
+  register: tarfile
+
+- name: copy backup content tar into docker container
+  shell: docker cp {{ wpbackupdir }}/{{ tarfile.stdout }} {{ container }}:/var/www/html/
+
+- name: unpack the content tarfile
+  shell: docker exec {{ container }} tar xfz {{ tarfile.stdout }}
+
+- name: find and register the latest db backup
+  shell: ls -At {{ dbbackupdir }} | grep {{ dbcontainer }} | head -n 1
+  register: sqldump
+
+- name: debug sqldump
+  debug:
+    var: sqldump
+    verbosity: 2
+
+- name: restore the sql backup to the database
+  shell: cat {{ dbbackupdir }}/{{ sqldump.stdout }} | \
+    docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} \
+    -p{{ dbpassword }} {{ dbname }}
