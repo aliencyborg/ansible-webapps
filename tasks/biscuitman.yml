@@ -1,6 +1,4 @@
 ---
-# TODO: rebuild the backer-upper container
-
 - name: biscuit-backups container
   docker_container:
     image: mariadb:10.4
@@ -69,4 +67,3 @@
       - "{{ biscuitman_sftp_port }}:22"
     volumes:
       - biscuitman-content:/home/alien/upload
-

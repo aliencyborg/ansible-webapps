@@ -3,8 +3,6 @@
   tasks:
     - include: tasks/biscuitman.yml
       tags: biscuitman
-    - include: tasks/biscuit-stage.yml
-      tags: biscuit-stage
     # - include: tasks/justus.yml
     #   tags: justus
     - include: tasks/my-market-mentor.yml
@@ -15,7 +13,6 @@
       tags: shahbaz
   vars_files:
     - play_vars/biscuitman.yml
-    - play_vars/biscuit-stage.yml
     # - play_vars/justus.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
@@ -24,7 +21,7 @@
 - hosts: west
   tasks:
     - include: tasks/bowen-work.yml
-      tags: bowen-work
+      tags: bowen
     - include: tasks/drupal-demo.yml
       tags: drupal-demo
     - include: tasks/drupaul.yml

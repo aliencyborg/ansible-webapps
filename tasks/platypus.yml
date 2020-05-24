@@ -61,4 +61,3 @@
       - "{{ platypus_sftp_port }}:22"
     volumes:
       - ctp-wp-content:/home/alien/upload
-

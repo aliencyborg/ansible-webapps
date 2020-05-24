@@ -1,0 +1,58 @@
+---
+- hosts: east
+  tasks:
+    - include: tasks/backup-wordpress.yml
+      tags: biscuitman
+      vars:
+        dbcontainer: "{{ biscuitman.db.container }}"
+        dbname: "{{ biscuitman.db.name }}"
+        dbpassword: "{{ biscuitman.db.password }}"
+        dbuser: "{{ biscuitman.db.user }}"
+        wpcontainer: "{{ biscuitman.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: mmm
+      vars:
+        dbcontainer: "{{ mmm.db.container }}"
+        dbname: "{{ mmm.db.name }}"
+        dbpassword: "{{ mmm.db.password }}"
+        dbuser: "{{ mmm.db.user }}"
+        wpcontainer: "{{ mmm.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: platypus
+      vars:
+        dbcontainer: "{{ platypus.db.container }}"
+        dbname: "{{ platypus.db.name }}"
+        dbpassword: "{{ platypus.db.password }}"
+        dbuser: "{{ platypus.db.user }}"
+        wpcontainer: "{{ platypus.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: shahbaz
+      vars:
+        dbcontainer: "{{ shahbaz.db.container }}"
+        dbname: "{{ shahbaz.db.name }}"
+        dbpassword: "{{ shahbaz.db.password }}"
+        dbuser: "{{ shahbaz.db.user }}"
+        wpcontainer: "{{ shahbaz.wp.container }}"
+
+  vars_files:
+    - play_vars/shahbaz.yml
+    - play_vars/my-market-mentor.yml
+    - play_vars/platypus.yml
+    - play_vars/biscuitman.yml
+
+- hosts: west
+  tasks:
+    - include: tasks/backup-wordpress.yml
+      tags: bowen
+      vars:
+        dbcontainer: "{{ bowen.db.container }}"
+        dbname: "{{ bowen.db.name }}"
+        dbpassword: "{{ bowen.db.password }}"
+        dbuser: "{{ bowen.db.user }}"
+        wpcontainer: "{{ bowen.wp.container }}"
+
+  vars_files:
+    - play_vars/bowen-work.yml

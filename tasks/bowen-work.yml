@@ -29,10 +29,10 @@
     name: bowen-work-db
     restart_policy: always
     env:
-      MYSQL_DATABASE: "{{ bowen_work.db.name }}"
-      MYSQL_PASSWORD: "{{ bowen_work.db.password }}"
+      MYSQL_DATABASE: "{{ bowen.db.name }}"
+      MYSQL_PASSWORD: "{{ bowen.db.password }}"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-      MYSQL_USER: "{{ bowen_work.db.user }}"
+      MYSQL_USER: "{{ bowen.db.user }}"
     volumes:
       - bowen-work-db-backups:/backups
       - bowen-work-db-data:/var/lib/mysql
@@ -47,9 +47,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
       VIRTUAL_HOST: "{{ bowen_work_hosts }}"
-      WORDPRESS_DB_NAME: "{{ bowen_work.db.name }}"
-      WORDPRESS_DB_PASSWORD: "{{ bowen_work.db.password }}"
-      WORDPRESS_DB_USER: "{{ bowen_work.db.user }}"
+      WORDPRESS_DB_NAME: "{{ bowen.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ bowen.db.password }}"
+      WORDPRESS_DB_USER: "{{ bowen.db.user }}"
     exposed_ports:
       - "80"
     links:
@@ -59,7 +59,7 @@
 
 - name: bowen-work sftp
   docker_container:
-    command: "{{ bowen_work.sftp.user }}:{{ bowen_work.sftp.password }}:1001"
+    command: "{{ bowen.sftp.user }}:{{ bowen.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: bowen-work-ftp
     restart_policy: always
@@ -67,4 +67,3 @@
       - "{{ bowen_work_sftp_port }}:22"
     volumes:
       - bowen-work-content:/home/alien/upload
-

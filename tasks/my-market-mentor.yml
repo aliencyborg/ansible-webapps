@@ -1,12 +1,4 @@
 ---
-- name: mmm db backups container
-  docker_container:
-    image: mariadb:10
-    name: mmm-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: mmm wordpress content container
   docker_container:
     image: wordpress:5.3
@@ -29,12 +21,11 @@
     name: mmm-db
     restart_policy: always
     env:
-      MYSQL_DATABASE: "{{ my_market_mentor.db.name }}"
-      MYSQL_PASSWORD: "{{ my_market_mentor.db.password }}"
+      MYSQL_DATABASE: "{{ mmm.db.name }}"
+      MYSQL_PASSWORD: "{{ mmm.db.password }}"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-      MYSQL_USER: "{{ my_market_mentor.db.user }}"
+      MYSQL_USER: "{{ mmm.db.user }}"
     volumes:
-      - mmm-db-backups:/backups
       - mmm-db-data:/var/lib/mysql
 
 - name: mmm wordpress
@@ -47,9 +38,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ my_market_mentor_hosts }}"
       VIRTUAL_HOST: "{{ my_market_mentor_hosts }}"
-      WORDPRESS_DB_NAME: "{{ my_market_mentor.db.name }}"
-      WORDPRESS_DB_PASSWORD: "{{ my_market_mentor.db.password }}"
-      WORDPRESS_DB_USER: "{{ my_market_mentor.db.user }}"
+      WORDPRESS_DB_NAME: "{{ mmm.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ mmm.db.password }}"
+      WORDPRESS_DB_USER: "{{ mmm.db.user }}"
     exposed_ports:
       - "80"
     links:
@@ -59,7 +50,7 @@
 
 - name: mmm sftp
   docker_container:
-    command: "{{ my_market_mentor.sftp.user }}:{{ my_market_mentor.sftp.password }}:1001"
+    command: "{{ mmm.sftp.user }}:{{ mmm.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: mmm-ftp
     restart_policy: always
@@ -67,4 +58,3 @@
       - "{{ my_market_mentor_sftp_port }}:22"
     volumes:
       - mmm-content:/home/alien/upload
-
