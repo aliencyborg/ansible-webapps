@@ -5,15 +5,21 @@
       tags: biscuitman
     - include: tasks/biscuit-stage.yml
       tags: biscuit-stage
+    # - include: tasks/justus.yml
+    #   tags: justus
     - include: tasks/my-market-mentor.yml
       tags: mmm
     - include: tasks/platypus.yml
       tags: platypus
+    - include: tasks/shahbaz.yml
+      tags: shahbaz
   vars_files:
     - play_vars/biscuitman.yml
     - play_vars/biscuit-stage.yml
+    # - play_vars/justus.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
+    - play_vars/shahbaz.yml
 
 - hosts: west
   tasks:
@@ -50,4 +56,3 @@
     - play_vars/wordpress-demo.yml
     - play_vars/alien-admin.yml
     - play_vars/wordpress-demo.yml
-
