@@ -1,0 +1,18 @@
+---
+- hosts: east
+  tasks:
+    - include: tasks/biscuit-stage.yml
+
+    - include: tasks/restore-wordpress.yml
+      vars:
+        backupdbcontainer: "{{ biscuitman.db.container }}"
+        backupwpcontainer: "{{ biscuitman.wp.container }}"
+        dbcontainer: "{{ biscuit_stage.db.container }}"
+        dbname: "{{ biscuit_stage.db.name }}"
+        dbpassword: "{{ biscuit_stage.db.password }}"
+        dbuser: "{{ biscuit_stage.db.user }}"
+        wpcontainer: "{{ biscuit_stage.wp.container }}"
+
+  vars_files:
+    - play_vars/biscuitman.yml
+    - play_vars/biscuitman-stage.yml

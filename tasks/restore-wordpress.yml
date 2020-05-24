@@ -3,6 +3,8 @@
 # become_user:
 
 # vars:
+#   backupdbcontainer
+#   backupwpcontainer
 #   dbcontainer:
 #   dbname:
 #   dbpassword:
@@ -10,7 +12,7 @@
 #   wpcontainer:
 
 - name: find and register the latest content backup
-  shell: ls -At {{ wpbackupdir }} | grep {{ wpcontainer }} | head -n 1
+  shell: ls -At {{ wpbackupdir }} | grep {{ backupwpcontainer }} | head -n 1
   register: tarfile
 
 - name: copy backup content tar into docker container
@@ -20,7 +22,7 @@
   shell: docker exec {{ wpcontainer }} tar xfz {{ tarfile.stdout }}
 
 - name: find and register the latest db backup
-  shell: ls -At {{ dbbackupdir }} | grep {{ dbcontainer }} | head -n 1
+  shell: ls -At {{ dbbackupdir }} | grep {{ backupdbcontainer }} | head -n 1
   register: sqldump
 
 - name: debug sqldump

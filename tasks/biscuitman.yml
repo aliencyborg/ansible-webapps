@@ -1,12 +1,4 @@
 ---
-- name: biscuit-backups container
-  docker_container:
-    image: mariadb:10.4
-    name: biscuitman-db-backups
-    state: stopped
-    volumes:
-      - /db
-
 - name: biscuit wordpress content container
   docker_container:
     image: wordpress:5.4.1
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ biscuitman.db.user }}"
     volumes:
-      - biscuitman-db-backups:/backups
       - biscuitman-db-data:/var/lib/mysql
 
 - name: biscuit wordpress
