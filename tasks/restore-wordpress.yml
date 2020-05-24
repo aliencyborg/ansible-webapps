@@ -25,11 +25,6 @@
   shell: ls -At {{ dbbackupdir }} | grep {{ backupdbcontainer }} | head -n 1
   register: sqldump
 
-- name: debug sqldump
-  debug:
-    var: sqldump
-    verbosity: 2
-
 - name: restore the sql backup to the database
   shell: cat {{ dbbackupdir }}/{{ sqldump.stdout }} | \
     docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} \
