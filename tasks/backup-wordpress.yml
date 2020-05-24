@@ -3,11 +3,11 @@
 # become_user:
 
 # vars:
-#   wpcontainer:
 #   dbcontainer:
 #   dbname:
 #   dbpassword:
 #   dbuser:
+#   wpcontainer:
 
 - name: register timestamp
   shell: date '+%Y%m%d%H%M%S'
