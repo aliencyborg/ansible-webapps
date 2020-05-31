@@ -11,6 +11,15 @@
         wpcontainer: "{{ biscuitman.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
+      tags: just-us
+      vars:
+        dbcontainer: "{{ just_us.db.container }}"
+        dbname: "{{ just_us.db.name }}"
+        dbpassword: "{{ just_us.db.password }}"
+        dbuser: "{{ just_us.db.user }}"
+        wpcontainer: "{{ just_us.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
       tags: mmm
       vars:
         dbcontainer: "{{ mmm.db.container }}"
