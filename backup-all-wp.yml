@@ -47,10 +47,11 @@
         wpcontainer: "{{ shahbaz.wp.container }}"
 
   vars_files:
-    - play_vars/shahbaz.yml
+    - play_vars/biscuitman.yml
+    - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
-    - play_vars/biscuitman.yml
+    - play_vars/shahbaz.yml
 
 - hosts: west
   tasks:
