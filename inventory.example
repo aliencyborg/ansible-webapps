@@ -1,0 +1,12 @@
+[webservers]
+box1    ansible_host=00.100.100.555 ansible_port=50022 ansible_user=rozonda
+box2    ansible_host=00.100.100.556 ansible_port=50022 ansible_user=tionne
+box3    ansible_host=00.100.100.557 ansible_port=50022 ansible_user=lisa
+
+[east]
+box2
+
+[west]
+box1
+box3
+

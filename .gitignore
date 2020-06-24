@@ -1,9 +1,9 @@
 *.retry
 
-hosts
-hosts.yml
+inventory
 
 /host_vars/*.yml
 !/host_vars/*.example.yml
 /play_vars/*.yml
+!/play_vars/*.example.yml
 
