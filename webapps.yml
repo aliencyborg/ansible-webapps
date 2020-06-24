@@ -29,6 +29,8 @@
       tags: drupal-demo
     - include: tasks/drupaul.yml
       tags: drupaul
+    - include: tasks/dual-currency.yml
+      tags: dual-currency
     - include: tasks/ghost-demo.yml
       tags: ghost-demo
     - include: tasks/sudo-science.yml
