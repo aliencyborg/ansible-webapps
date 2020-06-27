@@ -1,39 +1,20 @@
-# copy this as {{hostname}}.yml and change to match your domains
+---
+alien_admin:
+  hosts: "myalienadmin.com,www.myalienadmin.com"
+  sftp:
+    port: 55001
 
-user: "{{ ansible_user }}"
+drupal_demo:
+  hosts: "mydrupal.org,www.mydrupal.org"
+  sftp:
+    port: 55002
 
-hubdir: "{{ homedir }}/code/src/github.com"
-dbbackupdir: "{{ homedir }}/db-backups"
-homedir: "/home/{{ user }}"
-wpbackupdir: "{{ homedir }}/content-backups"
-wpdirname: wp-content
+my_market_mentor:
+  hosts: "mymymarket.net,www.mymymarket.net"
+  sftp:
+    port: 55003
 
-alien_admin_hosts: "admin.example.com"
-alien_admin_sftp_port: 55555
-biscuit_stage_hosts: "bmstage.example.com"
-biscuit_stage_sftp_port: 55556
-biscuitman_hosts: "biscuit.examples.com"
-biscuitman_sftp_port: 55557
-bowen_work_hosts: "bowenworkmn.example.com"
-bowen_work_sftp_port: 55558
-drupal_demo_hosts: "drupal-demo.example.com"
-drupal_demo_sftp_port: 55559
-drupaul_hosts: "drupaul.example.com"
-drupaul_sftp_port: 55560
-dual_currency_hosts: "dcstage.example.com"
-ghost_demo_hosts: "ghost-demo.example.com"
-ghost_demo_url: "http://ghost-demo.example.com"
-just_us_hosts: "justus.example.com"
-just_us_sftp_port: 55561
-my_market_mentor_hosts: "mymarket.example.com"
-my_market_mentor_sftp_port: 55562
-platypus_hosts: "platypus.example.com"
-platypus_sftp_port: 55563
-shahbaz_hosts: "shahbaz.example.com"
-shahbaz_sftp_port: 55564
-sudo_science_ghost_hosts: "sudo.example.com"
-sudo_science_ghost_url: "http://sudo.example.com"
-veta_bakhtina_hosts: "veta.example.com"
-veta_bakhtina_sftp_port: 55565
-wordpress_demo_hosts: "wp-demo.example.com"
-wordpress_demo_sftp_port: 55566
+wordpress_demo:
+  hosts: "mywordpress.biz,www.mywordpress.biz"
+  sftp:
+    port: 55004

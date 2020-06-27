@@ -1,0 +1,60 @@
+---
+- name: joel wordpress content container
+  docker_container:
+    image: wordpress:5.4.2
+    name: joel-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: joel db data container
+  docker_container:
+    image: mariadb:10.5
+    name: joel-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: joel database
+  docker_container:
+    image: mariadb:10.5
+    name: joel-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ joel.db.name }}"
+      MYSQL_PASSWORD: "{{ joel.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ joel.db.user }}"
+    volumes:
+      - joel-db-data:/var/lib/mysql
+
+- name: joel wordpress
+  docker_container:
+    image: wordpress:5.4.2
+    name: joel-wp
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ joel_hosts }}"
+      VIRTUAL_HOST: "{{ joel_hosts }}"
+      WORDPRESS_DB_NAME: "{{ joel.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ joel.db.password }}"
+      WORDPRESS_DB_USER: "{{ joel.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "joel-db:mysql"
+    volumes:
+      - joel-content:/var/www/html
+
+- name: joel sftp
+  docker_container:
+    command: "{{ joel.sftp.user }}:{{ joel.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: joel-ftp
+    restart_policy: always
+    ports:
+      - "{{ joel_sftp_port }}:22"
+    volumes:
+      - joel-content:/home/joel/upload
