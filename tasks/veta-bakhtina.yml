@@ -1,12 +1,4 @@
 ---
-- name: veta-wp db backups container
-  docker_container:
-    image: mariadb:10
-    name: veta-wp-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: veta-wp wordpress content container
   docker_container:
     image: wordpress:5.3
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ veta_bakhtina.db.user }}"
     volumes:
-      - veta-wp-db-backups:/backups
       - veta-wp-db-data:/var/lib/mysql
 
 - name: veta-wp wordpress
@@ -68,4 +59,3 @@
       - "{{ veta_bakhtina_sftp_port }}:22"
     volumes:
       - veta-wp-content:/home/alien/upload
-

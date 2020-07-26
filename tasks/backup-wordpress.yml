@@ -1,14 +1,4 @@
 ---
-# become: yes
-# become_user:
-
-# vars:
-#   dbcontainer:
-#   dbname:
-#   dbpassword:
-#   dbuser:
-#   wpcontainer:
-
 - name: register timestamp
   shell: date '+%Y%m%d%H%M%S'
   register: timestamp

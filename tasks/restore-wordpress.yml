@@ -1,16 +1,4 @@
 ---
-# become: yes
-# become_user:
-
-# vars:
-#   backupdbcontainer
-#   backupwpcontainer
-#   dbcontainer:
-#   dbname:
-#   dbpassword:
-#   dbuser:
-#   wpcontainer:
-
 - name: find and register the latest content backup
   shell: ls -At {{ wpbackupdir }} | grep {{ backupwpcontainer }} | head -n 1
   register: tarfile

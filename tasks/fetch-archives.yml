@@ -1,0 +1,15 @@
+---
+- name: ensure ansible-fetch dir exists
+  file:
+    path: /$HOME/ansible-fetch/
+    state: directory
+
+- name: copy the wordpress archive to local box
+  fetch:
+    src: "{{archivedir}}/wp-backups.tgz"
+    dest: /$HOME/ansible-fetch/
+
+- name: copy the database archive to local box
+  fetch:
+    src: "{{archivedir}}/db-backups.tgz"
+    dest: /$HOME/ansible-fetch/

@@ -1,12 +1,4 @@
 ---
-- name: wp-demo db backups container
-  docker_container:
-    image: mariadb:10
-    name: wp-demo-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: wp-demo wordpress content container
   docker_container:
     image: wordpress:5.3
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ wordpress_demo.db.user }}"
     volumes:
-      - wp-demo-db-backups:/backups
       - wp-demo-db-data:/var/lib/mysql
 
 - name: wp-demo wordpress
@@ -67,4 +58,3 @@
       - "{{ wordpress_demo_sftp_port }}:22"
     volumes:
       - wp-demo-content:/home/alien/upload
-

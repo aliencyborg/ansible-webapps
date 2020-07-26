@@ -1,0 +1,27 @@
+---
+- name: ensure remote archive dir exists
+  file:
+    path: "{{ archivedir }}"
+    state: directory
+
+- name: push the wordpress archive to remote server
+  copy:
+    dest: "{{ archivedir }}/wp-backups.tgz"
+    src: "{{ localarchivedir }}/wp-backups.tgz"
+
+- name: push the database archive to remote server
+  copy:
+    dest: "{{ archivedir }}/db-backups.tgz"
+    src: "{{ localarchivedir }}/db-backups.tgz"
+
+- name: unpack the wp-backups
+  unarchive:
+    dest: "{{ homedir }}/"
+    remote_src: yes
+    src: "{{ archivedir }}/wp-backups.tgz"
+
+- name: unpack the db-backups
+  unarchive:
+    dest: "{{ homedir }}/"
+    remote_src: yes
+    src: "{{ archivedir }}/db-backups.tgz"

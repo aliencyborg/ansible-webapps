@@ -1,12 +1,4 @@
 ---
-- name: drupal-demo db backups container
-  docker_container:
-    image: mariadb:10
-    name: drupal-demo-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: drupal-demo drupal content container
   docker_container:
     image: drupal:8
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ drupal_demo.db.user }}"
     volumes:
-      - drupal-demo-db-backups:/backups
       - drupal-demo-db-data:/var/lib/mysql
 
 - name: drupal-demo drupal

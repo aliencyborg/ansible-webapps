@@ -1,12 +1,4 @@
 ---
-- name: bowen-work db backups container
-  docker_container:
-    image: mariadb:10
-    name: bowen-work-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: bowen-work wordpress content container
   docker_container:
     image: wordpress:5.3
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ bowen.db.user }}"
     volumes:
-      - bowen-work-db-backups:/backups
       - bowen-work-db-data:/var/lib/mysql
 
 - name: bowen-work wordpress

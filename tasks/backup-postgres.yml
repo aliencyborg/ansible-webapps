@@ -1,0 +1,13 @@
+---
+- name: register timestamp
+  shell: date '+%Y%m%d%H%M%S'
+  register: timestamp
+
+- name: ensure db-backups dir exists
+  file:
+    path: "{{ dbbackupdir }}"
+    state: directory
+
+- name: backup postgres
+  shell: docker exec {{ dbcontainer }} pg_dump -U {{ dbuser }}  > \
+    "{{ dbbackupdir }}/{{ dbcontainer }}_{{ timestamp.stdout }}.pgdump"

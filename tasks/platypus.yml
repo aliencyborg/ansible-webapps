@@ -1,12 +1,4 @@
 ---
-- name: ctp db backups container
-  docker_container:
-    image: mariadb:10.4
-    name: ctp-wp-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: ctp wordpress content container
   docker_container:
     image: wordpress:5.2
@@ -29,10 +21,11 @@
     name: ctp-wp-db
     restart_policy: always
     env:
+      MYSQL_DATABASE: "{{ platypus.db.name }}"
       MYSQL_PASSWORD: "{{ platypus.db.password }}"
-      MYSQL_ROOT_PASSWORD: "{{ platypus.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ platypus.db.user }}"
     volumes:
-      - ctp-wp-db-backups:/backups
       - ctp-wp-db-data:/var/lib/mysql
 
 - name: ctp wordpress
@@ -45,7 +38,9 @@
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ platypus_hosts }}"
       VIRTUAL_HOST: "{{ platypus_hosts }}"
+      WORDPRESS_DB_NAME: "{{ platypus.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ platypus.db.password }}"
+      WORDPRESS_DB_USER: "{{ platypus.db.user }}"
     links:
       - "ctp-wp-db:mysql"
     volumes:

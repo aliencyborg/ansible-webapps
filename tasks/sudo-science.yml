@@ -1,12 +1,4 @@
 ---
-- name: sudo-science db backups container
-  docker_container:
-    image: mariadb:10
-    name: sudo-science-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: sudo-science ghost content container
   docker_container:
     image: ghost:3
@@ -35,7 +27,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ sudo_science.db.user }}"
     volumes:
-      - sudo-science-db-backups:/backups
       - sudo-science-db-data:/var/lib/mysql
 
 - name: sudo-science ghost

@@ -1,0 +1,15 @@
+---
+- name: ensure archive dir exists
+  file:
+    path: "{{ archivedir }}"
+    state: directory
+
+- name: create an archive of wordpress backups
+  archive:
+    path: "{{wpbackupdir}}"
+    dest: "{{archivedir}}/wp-backups.tgz"
+
+- name: create an archive of database backups
+  archive:
+    path: "{{dbbackupdir}}"
+    dest: "{{archivedir}}/db-backups.tgz"

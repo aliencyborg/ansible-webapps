@@ -1,12 +1,4 @@
 ---
-- name: alien-admin db backups container
-  docker_container:
-    image: mariadb:10
-    name: alien-admin-db-backups
-    state: stopped
-    volumes:
-      - /backups
-
 - name: alien-admin drupal content container
   docker_container:
     image: drupal:8
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ alien_admin.db.user }}"
     volumes:
-      - alien-admin-db-backups:/backups
       - alien-admin-db-data:/var/lib/mysql
 
 - name: alien-admin drupal

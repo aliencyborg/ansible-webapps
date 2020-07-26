@@ -2,7 +2,7 @@
 - hosts: east
   tasks:
     - include: tasks/backup-wordpress.yml
-      tags: biscuitman
+      tags: [biscuitman, backup]
       vars:
         dbcontainer: "{{ biscuitman.db.container }}"
         dbname: "{{ biscuitman.db.name }}"
@@ -11,7 +11,25 @@
         wpcontainer: "{{ biscuitman.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
-      tags: just-us
+      tags: [biscuit-stage, backup]
+      vars:
+        dbcontainer: "{{ biscuit_stage.db.container }}"
+        dbname: "{{ biscuit_stage.db.name }}"
+        dbpassword: "{{ biscuit_stage.db.password }}"
+        dbuser: "{{ biscuit_stage.db.user }}"
+        wpcontainer: "{{ biscuit_stage.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [joel, backup]
+      vars:
+        dbcontainer: "{{ joel.db.container }}"
+        dbname: "{{ joel.db.name }}"
+        dbpassword: "{{ joel.db.password }}"
+        dbuser: "{{ joel.db.user }}"
+        wpcontainer: "{{ joel.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [just-us, backup]
       vars:
         dbcontainer: "{{ just_us.db.container }}"
         dbname: "{{ just_us.db.name }}"
@@ -20,7 +38,7 @@
         wpcontainer: "{{ just_us.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
-      tags: mmm
+      tags: [mmm, backup]
       vars:
         dbcontainer: "{{ mmm.db.container }}"
         dbname: "{{ mmm.db.name }}"
@@ -29,7 +47,7 @@
         wpcontainer: "{{ mmm.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
-      tags: platypus
+      tags: [platypus, backup]
       vars:
         dbcontainer: "{{ platypus.db.container }}"
         dbname: "{{ platypus.db.name }}"
@@ -38,7 +56,7 @@
         wpcontainer: "{{ platypus.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
-      tags: shahbaz
+      tags: [shahbaz, backup]
       vars:
         dbcontainer: "{{ shahbaz.db.container }}"
         dbname: "{{ shahbaz.db.name }}"
@@ -46,8 +64,16 @@
         dbuser: "{{ shahbaz.db.user }}"
         wpcontainer: "{{ shahbaz.wp.container }}"
 
+    - include: tasks/archive-backups.yml
+      tags: archive
+
+    - include: tasks/fetch-archives.yml
+      tags: archive
+
   vars_files:
+    - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
+    - play_vars/joel.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
@@ -56,7 +82,7 @@
 - hosts: west
   tasks:
     - include: tasks/backup-wordpress.yml
-      tags: bowen
+      tags: [bowen, backup]
       vars:
         dbcontainer: "{{ bowen.db.container }}"
         dbname: "{{ bowen.db.name }}"

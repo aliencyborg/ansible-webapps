@@ -1,12 +1,4 @@
 ---
-- name: just-us db backups container
-  docker_container:
-    image: mariadb:10
-    name: just-us-db-backups
-    state: present
-    volumes:
-      - /backups
-
 - name: just-us wordpress content container
   docker_container:
     image: wordpress:5.4
@@ -34,7 +26,6 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ just_us.db.user }}"
     volumes:
-      - just-us-db-backups:/backups
       - just-us-db-data:/var/lib/mysql
 
 - name: just-us wordpress
