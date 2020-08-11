@@ -1,11 +1,11 @@
 ---
-- hosts: west
+- hosts: east
   tasks:
     - include: tasks/push-archives.yml
       tags: [archive, push]
       vars:
         #TODO make this more dynamic
-        localarchivedir: "/$HOME/ansible-fetch/toofan/home/luis/archives/"
+        localarchivedir: "/$HOME/ansible-fetch/beast/home/hank/archives/"
 
     - include: tasks/restore-wordpress.yml
       tags: [biscuit-stage, restore]
@@ -28,6 +28,17 @@
         dbpassword: "{{ biscuitman.db.password }}"
         dbuser: "{{ biscuitman.db.user }}"
         wpcontainer: "{{ biscuitman.wp.container }}"
+
+    - include: tasks/restore-wordpress.yml
+      tags: [bowen, restore]
+      vars:
+        backupdbcontainer: "{{ bowen.db.container }}"
+        backupwpcontainer: "{{ bowen.wp.container }}"
+        dbcontainer: "{{ bowen.db.container }}"
+        dbname: "{{ bowen.db.name }}"
+        dbpassword: "{{ bowen.db.password }}"
+        dbuser: "{{ bowen.db.user }}"
+        wpcontainer: "{{ bowen.wp.container }}"
 
     - include: tasks/restore-wordpress.yml
       tags: [joel, restore]
@@ -87,6 +98,7 @@
   vars_files:
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
+    - play_vars/bowen.yml
     - play_vars/joel.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml

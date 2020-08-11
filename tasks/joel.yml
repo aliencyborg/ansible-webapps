@@ -36,7 +36,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ joel_hosts }}"
+      # LETSENCRYPT_HOST: "{{ joel_hosts }}"
       VIRTUAL_HOST: "{{ joel_hosts }}"
       WORDPRESS_DB_NAME: "{{ joel.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ joel.db.password }}"

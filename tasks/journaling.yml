@@ -1,0 +1,60 @@
+---
+- name: journaling wordpress content container
+  docker_container:
+    image: wordpress:5.4.2
+    name: journaling-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: journaling db data container
+  docker_container:
+    image: mariadb:10.5
+    name: journaling-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: journaling database
+  docker_container:
+    image: mariadb:10.5
+    name: journaling-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ journaling.db.name }}"
+      MYSQL_PASSWORD: "{{ journaling.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ journaling.db.user }}"
+    volumes:
+      - journaling-db-data:/var/lib/mysql
+
+- name: journaling wordpress
+  docker_container:
+    image: wordpress:5.4.2
+    name: journaling-wp
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ journaling_hosts }}"
+      VIRTUAL_HOST: "{{ journaling_hosts }}"
+      WORDPRESS_DB_NAME: "{{ journaling.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ journaling.db.password }}"
+      WORDPRESS_DB_USER: "{{ journaling.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "journaling-db:mysql"
+    volumes:
+      - journaling-content:/var/www/html
+
+- name: journaling sftp
+  docker_container:
+    command: "{{ journaling.sftp.user }}:{{ journaling.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: journaling-ftp
+    restart_policy: always
+    ports:
+      - "{{ journaling_sftp_port }}:22"
+    volumes:
+      - journaling-content:/home/journaling/upload

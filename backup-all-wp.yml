@@ -1,5 +1,5 @@
 ---
-- hosts: east
+- hosts: west
   tasks:
     - include: tasks/backup-wordpress.yml
       tags: [biscuitman, backup]
@@ -18,6 +18,15 @@
         dbpassword: "{{ biscuit_stage.db.password }}"
         dbuser: "{{ biscuit_stage.db.user }}"
         wpcontainer: "{{ biscuit_stage.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [bowen, backup]
+      vars:
+        dbcontainer: "{{ bowen.db.container }}"
+        dbname: "{{ bowen.db.name }}"
+        dbpassword: "{{ bowen.db.password }}"
+        dbuser: "{{ bowen.db.user }}"
+        wpcontainer: "{{ bowen.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [joel, backup]
@@ -73,22 +82,33 @@
   vars_files:
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
+    - play_vars/bowen-work.yml
     - play_vars/joel.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
     - play_vars/shahbaz.yml
 
-- hosts: west
+- hosts: east
   tasks:
     - include: tasks/backup-wordpress.yml
-      tags: [bowen, backup]
+      tags: [afsheen, backup]
       vars:
-        dbcontainer: "{{ bowen.db.container }}"
-        dbname: "{{ bowen.db.name }}"
-        dbpassword: "{{ bowen.db.password }}"
-        dbuser: "{{ bowen.db.user }}"
-        wpcontainer: "{{ bowen.wp.container }}"
+        dbcontainer: "{{ afsheen.db.container }}"
+        dbname: "{{ afsheen.db.name }}"
+        dbpassword: "{{ afsheen.db.password }}"
+        dbuser: "{{ afsheen.db.user }}"
+        wpcontainer: "{{ afsheen.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [journaling, backup]
+      vars:
+        dbcontainer: "{{ journaling.db.container }}"
+        dbname: "{{ journaling.db.name }}"
+        dbpassword: "{{ journaling.db.password }}"
+        dbuser: "{{ journaling.db.user }}"
+        wpcontainer: "{{ journaling.wp.container }}"
 
   vars_files:
-    - play_vars/bowen-work.yml
+    - play_vars/afsheen.yml
+    - play_vars/journaling.yml

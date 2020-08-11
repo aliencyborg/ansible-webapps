@@ -36,7 +36,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ biscuit_stage_hosts }}"
+      # LETSENCRYPT_HOST: "{{ biscuit_stage_hosts }}"
       VIRTUAL_HOST: "{{ biscuit_stage_hosts }}"
       WORDPRESS_DB_NAME: "{{ biscuit_stage.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ biscuit_stage.db.password }}"

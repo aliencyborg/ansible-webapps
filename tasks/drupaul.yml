@@ -36,7 +36,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ drupaul_hosts }}"
+      # LETSENCRYPT_HOST: "{{ drupaul_hosts }}"
       MYSQL_DATABASE: "{{ drupaul.db.name }}"
       MYSQL_PASSWORD: "{{ drupaul.db.password }}"
       MYSQL_USER: "{{ drupaul.db.user }}"

@@ -1,31 +1,8 @@
 ---
 - hosts: east
   tasks:
-    - include: tasks/biscuit-stage.yml
-      tags: biscuit-stage
-    - include: tasks/biscuitman.yml
-      tags: biscuitman
-    - include: tasks/joel.yml
-      tags: joel
-    - include: tasks/just-us.yml
-      tags: just-us
-    - include: tasks/my-market-mentor.yml
-      tags: mmm
-    - include: tasks/platypus.yml
-      tags: platypus
-    - include: tasks/shahbaz.yml
-      tags: shahbaz
-  vars_files:
-    - play_vars/biscuitman.yml
-    - play_vars/biscuitman-stage.yml
-    - play_vars/joel.yml
-    - play_vars/just-us.yml
-    - play_vars/my-market-mentor.yml
-    - play_vars/platypus.yml
-    - play_vars/shahbaz.yml
-
-- hosts: west
-  tasks:
+    - include: tasks/afsheen.yml
+      tags: afsheen
     - include: tasks/biscuit-stage.yml
       tags: biscuit-stage
     - include: tasks/biscuitman.yml
@@ -40,6 +17,8 @@
       tags: ghost-demo
     - include: tasks/joel.yml
       tags: joel
+    - include: tasks/journaling.yml
+      tags: journaling
     - include: tasks/just-us.yml
       tags: just-us
     - include: tasks/sudo-science.yml
@@ -53,6 +32,7 @@
     - include: tasks/shahbaz.yml
       tags: shahbaz
   vars_files:
+    - play_vars/afsheen.yml
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
     - play_vars/bowen-work.yml
@@ -60,6 +40,7 @@
     - play_vars/drupaul.yml
     - play_vars/ghost-demo.yml
     - play_vars/joel.yml
+    - play_vars/journaling.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
@@ -77,3 +58,8 @@
   vars_files:
     - play_vars/alien-admin.yml
     - play_vars/wordpress-demo.yml
+
+# Going to come down for a bit
+- hosts: west
+  tasks:
+  vars_files:

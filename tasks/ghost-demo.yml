@@ -37,7 +37,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ ghost_demo_hosts }}"
+      # LETSENCRYPT_HOST: "{{ ghost_demo_hosts }}"
       VIRTUAL_HOST: "{{ ghost_demo_hosts }}"
       database__client: mysql
       database__connection__database: "{{ ghost_demo.db.name }}"

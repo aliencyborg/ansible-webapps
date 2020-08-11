@@ -36,7 +36,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      LETSENCRYPT_HOST: "{{ veta_bakhtina_hosts }}"
+      # LETSENCRYPT_HOST: "{{ veta_bakhtina_hosts }}"
       VIRTUAL_HOST: "{{ veta_bakhtina_hosts }}"
       WORDPRESS_DB_NAME: "{{ veta_bakhtina.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ veta_bakhtina.db.password }}"
