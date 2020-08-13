@@ -1,7 +1,7 @@
 ---
 - name: sabew wordpress content container (stage)
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5.0
     name: sabew-stage-content
     state: stopped
     volumes:
@@ -30,7 +30,7 @@
 
 - name: sabew wordpress (stage)
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5.0
     name: sabew-stage-wp
     restart: yes
     restart_policy: always
