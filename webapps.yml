@@ -33,6 +33,8 @@
       tags: sabew-stage
     - include: tasks/shahbaz.yml
       tags: shahbaz
+    - include: tasks/zelda
+      tags: zelda
   vars_files:
     - play_vars/afsheen.yml
     - play_vars/biscuitman-stage.yml
@@ -50,6 +52,7 @@
     - play_vars/shahbaz.yml
     - play_vars/sudo-science.yml
     - play_vars/veta-bakhtina.yml
+    - play_vars/zelda.yml
 
 # These are stopped or suspended until needed
 - hosts: nada

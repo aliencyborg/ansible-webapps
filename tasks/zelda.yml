@@ -1,0 +1,63 @@
+---
+- name: zelda wordpress content container
+  docker_container:
+    image: wordpress:5.5.0
+    name: zelda-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: zelda db data container
+  docker_container:
+    image: mariadb:10.5
+    name: zelda-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: zelda database
+  docker_container:
+    image: mariadb:10.5
+    name: zelda-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ zelda.db.name }}"
+      MYSQL_PASSWORD: "{{ zelda.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ zelda.db.user }}"
+    volumes:
+      - zelda-db-data:/var/lib/mysql
+
+- name: zelda wordpress
+  docker_container:
+    image: wordpress:5.5.0
+    name: zelda-wp
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ zelda_hosts }}"
+      VIRTUAL_HOST: "{{ zelda_hosts }}"
+      WORDPRESS_DB_NAME: "{{ zelda.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ zelda.db.password }}"
+      WORDPRESS_DB_USER: "{{ zelda.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "zelda-db:mysql"
+    volumes:
+      - zelda-content:/var/www/html
+
+- name: zelda sftp
+  docker_container:
+    command: "{{ zelda.sftp.user }}:{{ zelda.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: zelda-ftp
+    restart_policy: always
+    ports:
+      - "{{ zelda_sftp_port }}:22"
+    volumes:
+      - "zelda-content:/home/{{ zelda.sftp.user }}/upload"
+
+- name: add group access permissions to ftp directory
+  shell: docker exec zelda-ftp chmod -R g+w /home/{{ zelda.sftp.user }}
