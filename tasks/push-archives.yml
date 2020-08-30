@@ -4,15 +4,10 @@
     path: "{{ archivedir }}"
     state: directory
 
-- name: push the wordpress archive to remote server
+- name: push the archives to remote server
   copy:
-    dest: "{{ archivedir }}/wp-backups.tgz"
-    src: "{{ localarchivedir }}/wp-backups.tgz"
-
-- name: push the database archive to remote server
-  copy:
-    dest: "{{ archivedir }}/db-backups.tgz"
-    src: "{{ localarchivedir }}/db-backups.tgz"
+    dest: "{{ archivedir }}/"
+    src: "{{ localarchivedir }}/"
 
 - name: unpack the wp-backups
   unarchive:

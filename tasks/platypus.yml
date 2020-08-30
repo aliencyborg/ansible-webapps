@@ -1,7 +1,7 @@
 ---
 - name: ctp wordpress content container
   docker_container:
-    image: wordpress:5.2
+    image: wordpress:5.5
     name: ctp-wp-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: ctp wordpress
   docker_container:
-    image: wordpress:5.2
+    image: wordpress:5.5
     name: ctp-wp-wp
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ platypus_hosts }}"
+      LETSENCRYPT_HOST: "{{ platypus_hosts }}"
       VIRTUAL_HOST: "{{ platypus_hosts }}"
       WORDPRESS_DB_NAME: "{{ platypus.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ platypus.db.password }}"

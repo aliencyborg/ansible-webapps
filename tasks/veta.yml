@@ -1,7 +1,7 @@
 ---
 - name: veta-wp wordpress content container
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: veta-wp-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: veta-wp wordpress
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: veta-wp-web
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ veta_hosts }}"
+      LETSENCRYPT_HOST: "{{ veta_hosts }}"
       VIRTUAL_HOST: "{{ veta_hosts }}"
       WORDPRESS_DB_NAME: "{{ veta.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ veta.db.password }}"

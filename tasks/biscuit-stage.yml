@@ -1,7 +1,7 @@
 ---
 - name: biscuit-stage wordpress content container
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: biscuit-stage-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: biscuit-stage wordpress
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: biscuit-stage-wp
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ biscuit_stage_hosts }}"
+      LETSENCRYPT_HOST: "{{ biscuit_stage_hosts }}"
       VIRTUAL_HOST: "{{ biscuit_stage_hosts }}"
       WORDPRESS_DB_NAME: "{{ biscuit_stage.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ biscuit_stage.db.password }}"

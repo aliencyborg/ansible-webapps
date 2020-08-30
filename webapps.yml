@@ -33,13 +33,15 @@
       tags: sabew-stage
     - include: tasks/shahbaz.yml
       tags: shahbaz
+    - include: tasks/veta.yml
+      tags: veta
     - include: tasks/zelda.yml
       tags: zelda
   vars_files:
     - play_vars/afsheen.yml
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
-    - play_vars/bowen-work.yml
+    - play_vars/bowen.yml
     - play_vars/drupal-demo.yml
     - play_vars/drupaul.yml
     - play_vars/ghost-demo.yml

@@ -1,7 +1,7 @@
 ---
 - name: bowen-work wordpress content container
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: bowen-work-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: bowen-work wordpress
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: bowen-work-web
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
+      LETSENCRYPT_HOST: "{{ bowen_work_hosts }}"
       VIRTUAL_HOST: "{{ bowen_work_hosts }}"
       WORDPRESS_DB_NAME: "{{ bowen.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ bowen.db.password }}"

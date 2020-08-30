@@ -1,7 +1,7 @@
 ---
 - name: sabew wordpress content container (stage)
   docker_container:
-    image: wordpress:5.5.0
+    image: wordpress:5.5
     name: sabew-stage-content
     state: stopped
     volumes:
@@ -30,7 +30,7 @@
 
 - name: sabew wordpress (stage)
   docker_container:
-    image: wordpress:5.5.0
+    image: wordpress:5.5
     name: sabew-stage-wp
     restart: yes
     restart_policy: always
@@ -61,6 +61,5 @@
 
 - name: add group access permissions to ftp directory
   shell: docker exec sabew-stage-ftp chmod -R g+w /home/{{ sabew_stage.sftp.user }}
-
 #- name: add ftp user to the www-data group
-  #shell: docker exec sabew-stage-ftp usermod -g www-data {{ sabew_stage.sftp.user }}
+#shell: docker exec sabew-stage-ftp usermod -g www-data {{ sabew_stage.sftp.user }}

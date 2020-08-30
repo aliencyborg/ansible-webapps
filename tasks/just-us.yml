@@ -1,7 +1,7 @@
 ---
 - name: just-us wordpress content container
   docker_container:
-    image: wordpress:5.4
+    image: wordpress:5.5
     name: just-us-content
     state: present
     volumes:
@@ -30,13 +30,13 @@
 
 - name: just-us wordpress
   docker_container:
-    image: wordpress:5.4
+    image: wordpress:5.5
     name: just-us-web
     restart: yes
     state: started
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ just_us_hosts }}"
+      LETSENCRYPT_HOST: "{{ just_us_hosts }}"
       VIRTUAL_HOST: "{{ just_us_hosts }}"
       WORDPRESS_DB_NAME: "{{ just_us.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ just_us.db.password }}"

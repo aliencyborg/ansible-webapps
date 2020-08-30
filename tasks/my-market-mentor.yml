@@ -1,7 +1,7 @@
 ---
 - name: mmm wordpress content container
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: mmm-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: mmm wordpress
   docker_container:
-    image: wordpress:5.3
+    image: wordpress:5.5
     name: mmm-web
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ my_market_mentor_hosts }}"
+      LETSENCRYPT_HOST: "{{ my_market_mentor_hosts }}"
       VIRTUAL_HOST: "{{ my_market_mentor_hosts }}"
       WORDPRESS_DB_NAME: "{{ mmm.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ mmm.db.password }}"

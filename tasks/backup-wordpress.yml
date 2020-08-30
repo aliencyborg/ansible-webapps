@@ -1,8 +1,4 @@
 ---
-- name: register timestamp
-  shell: date '+%Y%m%d%H%M%S'
-  register: timestamp
-
 - name: ensure content-backups dir exists
   file:
     path: "{{ wpbackupdir }}"
@@ -15,9 +11,9 @@
 
 - name: backup wp-content
   shell: docker exec {{ wpcontainer }} tar cfz - {{ wpdirname }} > \
-    "{{ wpbackupdir }}/{{ wpcontainer }}_{{ wpdirname }}_{{ timestamp.stdout }}.tar.gz"
+    "{{ wpbackupdir }}/{{ wpcontainer }}_{{ wpdirname }}_{{ timestamp }}.tar.gz"
 
 - name: backup mysql
   shell: docker exec {{ dbcontainer }} mysqldump -u{{ dbuser }} \
     -p{{ dbpassword }} {{ dbname }} > \
-    "{{ dbbackupdir }}/{{ dbcontainer }}_{{ timestamp.stdout }}.sql"
+    "{{ dbbackupdir }}/{{ dbcontainer }}_{{ timestamp }}.sql"

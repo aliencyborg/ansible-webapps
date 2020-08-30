@@ -37,7 +37,7 @@
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ sudo_science_ghost_hosts }}"
+      LETSENCRYPT_HOST: "{{ sudo_science_ghost_hosts }}"
       VIRTUAL_HOST: "{{ sudo_science_ghost_hosts }}"
       VIRTUAL_PORT: "2368"
       database__client: mysql

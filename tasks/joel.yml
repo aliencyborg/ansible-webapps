@@ -1,7 +1,7 @@
 ---
 - name: joel wordpress content container
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5
     name: joel-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: joel wordpress
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5
     name: joel-wp
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ joel_hosts }}"
+      LETSENCRYPT_HOST: "{{ joel_hosts }}"
       VIRTUAL_HOST: "{{ joel_hosts }}"
       WORDPRESS_DB_NAME: "{{ joel.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ joel.db.password }}"

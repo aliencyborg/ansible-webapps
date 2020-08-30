@@ -1,6 +1,16 @@
 ---
 - hosts: west
   tasks:
+    - name: register timestamp
+      tags: [time]
+      set_fact:
+        timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+
+    - name: debug timestamp
+      tags: [time]
+      debug:
+        msg: "timestamp: {{ timestamp }}"
+
     - include: tasks/backup-wordpress.yml
       tags: [biscuitman, backup]
       vars:
@@ -91,7 +101,7 @@
   vars_files:
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
-    - play_vars/bowen-work.yml
+    - play_vars/bowen.yml
     - play_vars/joel.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
@@ -136,6 +146,12 @@
         dbpassword: "{{ zelda.db.password }}"
         dbuser: "{{ zelda.db.user }}"
         wpcontainer: "{{ zelda.wp.container }}"
+
+    - include: tasks/archive-backups.yml
+      tags: archive
+
+    - include: tasks/fetch-archives.yml
+      tags: archive
 
   vars_files:
     - play_vars/afsheen.yml

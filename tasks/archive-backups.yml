@@ -6,10 +6,10 @@
 
 - name: create an archive of wordpress backups
   archive:
-    path: "{{wpbackupdir}}"
-    dest: "{{archivedir}}/wp-backups.tgz"
+    path: "{{ wpbackupdir }}"
+    dest: "{{ archivedir }}/wp-backups_{{ timestamp }}.tgz"
 
 - name: create an archive of database backups
   archive:
-    path: "{{dbbackupdir}}"
-    dest: "{{archivedir}}/db-backups.tgz"
+    path: "{{ dbbackupdir }}"
+    dest: "{{ archivedir }}/db-backups_{{ timestamp }}.tgz"

@@ -6,10 +6,10 @@
 
 - name: copy the wordpress archive to local box
   fetch:
-    src: "{{archivedir}}/wp-backups.tgz"
+    src: "{{ archivedir }}/wp-backups_{{ timestamp }}.tgz"
     dest: /$HOME/ansible-fetch/
 
 - name: copy the database archive to local box
   fetch:
-    src: "{{archivedir}}/db-backups.tgz"
+    src: "{{ archivedir }}/db-backups_{{ timestamp }}.tgz"
     dest: /$HOME/ansible-fetch/

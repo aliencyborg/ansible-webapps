@@ -1,7 +1,7 @@
 ---
 - name: biscuit wordpress content container
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: biscuitman-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: biscuit wordpress
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: biscuitman-wp
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ biscuitman_hosts }}"
+      LETSENCRYPT_HOST: "{{ biscuitman_hosts }}"
       VIRTUAL_HOST: "{{ biscuitman_hosts }}"
       WORDPRESS_DB_NAME: "{{ biscuitman.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ biscuitman.db.password }}"

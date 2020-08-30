@@ -1,7 +1,7 @@
 ---
 - name: afsheen wordpress content container
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5
     name: afsheen-content
     state: stopped
     volumes:
@@ -30,7 +30,7 @@
 
 - name: afsheen wordpress
   docker_container:
-    image: wordpress:5.4.2
+    image: wordpress:5.5
     name: afsheen-wp
     restart: yes
     restart_policy: always

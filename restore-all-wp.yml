@@ -95,6 +95,17 @@
         dbuser: "{{ shahbaz.db.user }}"
         wpcontainer: "{{ shahbaz.wp.container }}"
 
+    - include: tasks/restore-wordpress.yml
+      tags: [veta, restore]
+      vars:
+        backupdbcontainer: "{{ veta.db.container }}"
+        backupwpcontainer: "{{ veta.wp.container }}"
+        dbcontainer: "{{ veta.db.container }}"
+        dbname: "{{ veta.db.name }}"
+        dbpassword: "{{ veta.db.password }}"
+        dbuser: "{{ veta.db.user }}"
+        wpcontainer: "{{ veta.wp.container }}"
+
   vars_files:
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
@@ -104,3 +115,4 @@
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
     - play_vars/shahbaz.yml
+    - play_vars/veta.yml

@@ -1,7 +1,7 @@
 ---
 - name: shahbaz wordpress content container
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: shahbaz-content
     state: stopped
     volumes:
@@ -30,13 +30,13 @@
 
 - name: shahbaz wordpress
   docker_container:
-    image: wordpress:5.4.1
+    image: wordpress:5.5
     name: shahbaz-wp
     restart: yes
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ shahbaz_hosts }}"
+      LETSENCRYPT_HOST: "{{ shahbaz_hosts }}"
       VIRTUAL_HOST: "{{ shahbaz_hosts }}"
       WORDPRESS_DB_NAME: "{{ shahbaz.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ shahbaz.db.password }}"
