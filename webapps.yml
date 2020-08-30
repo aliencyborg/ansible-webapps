@@ -33,7 +33,7 @@
       tags: sabew-stage
     - include: tasks/shahbaz.yml
       tags: shahbaz
-    - include: tasks/zelda
+    - include: tasks/zelda.yml
       tags: zelda
   vars_files:
     - play_vars/afsheen.yml
