@@ -73,6 +73,15 @@
         dbuser: "{{ shahbaz.db.user }}"
         wpcontainer: "{{ shahbaz.wp.container }}"
 
+    - include: tasks/backup-wordpress.yml
+      tags: [veta, backup]
+      vars:
+        dbcontainer: "{{ veta.db.container }}"
+        dbname: "{{ veta.db.name }}"
+        dbpassword: "{{ veta.db.password }}"
+        dbuser: "{{ veta.db.user }}"
+        wpcontainer: "{{ veta.wp.container }}"
+
     - include: tasks/archive-backups.yml
       tags: archive
 
@@ -88,6 +97,7 @@
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
     - play_vars/shahbaz.yml
+    - play_vars/veta.yml
 
 - hosts: east
   tasks:
@@ -109,6 +119,26 @@
         dbuser: "{{ journaling.db.user }}"
         wpcontainer: "{{ journaling.wp.container }}"
 
+    - include: tasks/backup-wordpress.yml
+      tags: [sabew-stage, backup]
+      vars:
+        dbcontainer: "{{ sabew-stage.db.container }}"
+        dbname: "{{ sabew-stage.db.name }}"
+        dbpassword: "{{ sabew-stage.db.password }}"
+        dbuser: "{{ sabew-stage.db.user }}"
+        wpcontainer: "{{ sabew-stage.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [zelda, backup]
+      vars:
+        dbcontainer: "{{ zelda.db.container }}"
+        dbname: "{{ zelda.db.name }}"
+        dbpassword: "{{ zelda.db.password }}"
+        dbuser: "{{ zelda.db.user }}"
+        wpcontainer: "{{ zelda.wp.container }}"
+
   vars_files:
     - play_vars/afsheen.yml
     - play_vars/journaling.yml
+    - play_vars/sabew-stage.yml
+    - play_vars/zelda.yml
