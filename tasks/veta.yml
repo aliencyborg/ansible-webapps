@@ -21,10 +21,10 @@
     name: veta-wp-db
     restart_policy: always
     env:
-      MYSQL_DATABASE: "{{ veta_bakhtina.db.name }}"
-      MYSQL_PASSWORD: "{{ veta_bakhtina.db.password }}"
+      MYSQL_DATABASE: "{{ veta.db.name }}"
+      MYSQL_PASSWORD: "{{ veta.db.password }}"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-      MYSQL_USER: "{{ veta_bakhtina.db.user }}"
+      MYSQL_USER: "{{ veta.db.user }}"
     volumes:
       - veta-wp-db-data:/var/lib/mysql
 
@@ -36,11 +36,11 @@
     restart_policy: always
     env:
       HSTS: "off"
-      # LETSENCRYPT_HOST: "{{ veta_bakhtina_hosts }}"
-      VIRTUAL_HOST: "{{ veta_bakhtina_hosts }}"
-      WORDPRESS_DB_NAME: "{{ veta_bakhtina.db.name }}"
-      WORDPRESS_DB_PASSWORD: "{{ veta_bakhtina.db.password }}"
-      WORDPRESS_DB_USER: "{{ veta_bakhtina.db.user }}"
+      # LETSENCRYPT_HOST: "{{ veta_hosts }}"
+      VIRTUAL_HOST: "{{ veta_hosts }}"
+      WORDPRESS_DB_NAME: "{{ veta.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ veta.db.password }}"
+      WORDPRESS_DB_USER: "{{ veta.db.user }}"
     exposed_ports:
       - "80"
       - "443"
@@ -51,11 +51,11 @@
 
 - name: veta-wp sftp
   docker_container:
-    command: "{{ veta_bakhtina.sftp.user }}:{{ veta_bakhtina.sftp.password }}:1001"
+    command: "{{ veta.sftp.user }}:{{ veta.sftp.password }}:1001"
     image: atmoz/sftp:latest
     name: veta-wp-ftp
     restart_policy: always
     ports:
-      - "{{ veta_bakhtina_sftp_port }}:22"
+      - "{{ veta_sftp_port }}:22"
     volumes:
       - veta-wp-content:/home/alien/upload
