@@ -121,13 +121,13 @@
         wpcontainer: "{{ afsheen.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
-      tags: [journaling, backup]
+      tags: [legiticus, backup]
       vars:
-        dbcontainer: "{{ journaling.db.container }}"
-        dbname: "{{ journaling.db.name }}"
-        dbpassword: "{{ journaling.db.password }}"
-        dbuser: "{{ journaling.db.user }}"
-        wpcontainer: "{{ journaling.wp.container }}"
+        dbcontainer: "{{ legiticus.db.container }}"
+        dbname: "{{ legiticus.db.name }}"
+        dbpassword: "{{ legiticus.db.password }}"
+        dbuser: "{{ legiticus.db.user }}"
+        wpcontainer: "{{ legiticus.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [sabew-stage, backup]
@@ -155,6 +155,6 @@
 
   vars_files:
     - play_vars/afsheen.yml
-    - play_vars/journaling.yml
+    - play_vars/legiticus.yml
     - play_vars/sabew-stage.yml
     - play_vars/zelda.yml

@@ -17,8 +17,8 @@
       tags: ghost-demo
     - include: tasks/joel.yml
       tags: joel
-    - include: tasks/journaling.yml
-      tags: journaling
+    - include: tasks/legiticus.yml
+      tags: legiticus
     - include: tasks/just-us.yml
       tags: just-us
     - include: tasks/sudo-science.yml
@@ -46,7 +46,7 @@
     - play_vars/drupaul.yml
     - play_vars/ghost-demo.yml
     - play_vars/joel.yml
-    - play_vars/journaling.yml
+    - play_vars/legiticus.yml
     - play_vars/just-us.yml
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml

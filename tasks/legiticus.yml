@@ -1,0 +1,60 @@
+---
+- name: legiticus wordpress content container
+  docker_container:
+    image: wordpress:5.5
+    name: legiticus-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: legiticus db data container
+  docker_container:
+    image: mariadb:10.5
+    name: legiticus-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: legiticus database
+  docker_container:
+    image: mariadb:10.5
+    name: legiticus-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ legiticus.db.name }}"
+      MYSQL_PASSWORD: "{{ legiticus.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ legiticus.db.user }}"
+    volumes:
+      - legiticus-db-data:/var/lib/mysql
+
+- name: legiticus wordpress
+  docker_container:
+    image: wordpress:5.5
+    name: legiticus-wp
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ legiticus_hosts }}"
+      VIRTUAL_HOST: "{{ legiticus_hosts }}"
+      WORDPRESS_DB_NAME: "{{ legiticus.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ legiticus.db.password }}"
+      WORDPRESS_DB_USER: "{{ legiticus.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "legiticus-db:mysql"
+    volumes:
+      - legiticus-content:/var/www/html
+
+- name: legiticus sftp
+  docker_container:
+    command: "{{ legiticus.sftp.user }}:{{ legiticus.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: legiticus-ftp
+    restart_policy: always
+    ports:
+      - "{{ legiticus_sftp_port }}:22"
+    volumes:
+      - legiticus-content:/home/legiticus/upload
