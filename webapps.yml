@@ -70,4 +70,7 @@
 # Going to come down for a bit
 - hosts: west
   tasks:
+    - include: tasks/sabew-legacy.yml
+      tags: sabew
   vars_files:
+    - play_vars/sabew-legacy.yml
