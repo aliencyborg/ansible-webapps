@@ -70,7 +70,10 @@
 # Going to come down for a bit
 - hosts: west
   tasks:
+    - include: tasks/madeline.yml
+      tags: madeline
     - include: tasks/sabew-legacy.yml
       tags: sabew
   vars_files:
+    - play_vars/madeline.yml
     - play_vars/sabew-legacy.yml

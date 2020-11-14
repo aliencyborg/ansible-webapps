@@ -1,0 +1,60 @@
+---
+- name: madeline drupal content container
+  docker_container:
+    image: drupal:9
+    name: madeline-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: madeline db data container
+  docker_container:
+    image: mariadb:10
+    name: madeline-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: madeline database
+  docker_container:
+    image: mariadb:10
+    name: madeline-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ madeline.db.name }}"
+      MYSQL_PASSWORD: "{{ madeline.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ madeline.db.user }}"
+    volumes:
+      - madeline-db-data:/var/lib/mysql
+
+- name: madeline drupal
+  docker_container:
+    image: drupal:9
+    name: madeline-web
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ madeline_hosts }}"
+      MYSQL_DATABASE: "{{ madeline.db.name }}"
+      MYSQL_PASSWORD: "{{ madeline.db.password }}"
+      MYSQL_USER: "{{ madeline.db.user }}"
+      VIRTUAL_HOST: "{{ madeline_hosts }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "madeline-db:mysql"
+    volumes:
+      - madeline-content:/var/www/html
+
+- name: madeline sftp
+  docker_container:
+    command: "{{ madeline.sftp.user }}:{{ madeline.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: madeline-ftp
+    restart_policy: always
+    ports:
+      - "{{ madeline_sftp_port }}:22"
+    volumes:
+      - madeline-content:/home/madeline/upload
