@@ -1,7 +1,7 @@
 ---
 - name: madeline drupal content container
   docker_container:
-    image: drupal:9
+    image: drupal:8
     name: madeline-content
     state: stopped
     volumes:
@@ -30,7 +30,7 @@
 
 - name: madeline drupal
   docker_container:
-    image: drupal:9
+    image: drupal:8
     name: madeline-web
     restart: yes
     restart_policy: always
