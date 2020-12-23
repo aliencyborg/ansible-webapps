@@ -9,6 +9,8 @@
       tags: biscuitman
     - include: tasks/bowen-work.yml
       tags: bowen
+    - include: tasks/coolidge.yml
+      tags: coolidge
     - include: tasks/drupal-demo.yml
       tags: drupal-demo
     - include: tasks/drupaul.yml
@@ -42,6 +44,7 @@
     - play_vars/biscuitman-stage.yml
     - play_vars/biscuitman.yml
     - play_vars/bowen.yml
+    - play_vars/coolidge.yml
     - play_vars/drupal-demo.yml
     - play_vars/drupaul.yml
     - play_vars/ghost-demo.yml

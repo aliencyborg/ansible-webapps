@@ -1,0 +1,61 @@
+---
+- name: coolidge wordpress content container
+  docker_container:
+    image: wordpress:5.5
+    name: coolidge-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: coolidge db data container
+  docker_container:
+    image: mariadb:10
+    name: coolidge-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: coolidge database
+  docker_container:
+    image: mariadb:10
+    name: coolidge-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ coolidge.db.name }}"
+      MYSQL_PASSWORD: "{{ coolidge.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ coolidge.db.user }}"
+    volumes:
+      - coolidge-db-data:/var/lib/mysql
+
+- name: coolidge wordpress
+  docker_container:
+    image: wordpress:5.5
+    name: coolidge-web
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ coolidge_hosts }}"
+      VIRTUAL_HOST: "{{ coolidge_hosts }}"
+      WORDPRESS_DB_NAME: "{{ coolidge.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ coolidge.db.password }}"
+      WORDPRESS_DB_USER: "{{ coolidge.db.user }}"
+    exposed_ports:
+      - "80"
+      - "443"
+    links:
+      - "coolidge-db:mysql"
+    volumes:
+      - coolidge-content:/var/www/html
+
+- name: coolidge sftp
+  docker_container:
+    command: "{{ coolidge.sftp.user }}:{{ coolidge.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: coolidge-ftp
+    restart_policy: always
+    ports:
+      - "{{ coolidge_sftp_port }}:22"
+    volumes:
+      - coolidge-content:/home/alien/upload
