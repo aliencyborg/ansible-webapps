@@ -77,6 +77,8 @@
       tags: madeline
     - include: tasks/sabew-legacy.yml
       tags: sabew
+    - include: tasks/such.yml
   vars_files:
     - play_vars/madeline.yml
     - play_vars/sabew-legacy.yml
+    - play_vars/such.yml

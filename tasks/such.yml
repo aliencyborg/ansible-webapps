@@ -1,0 +1,59 @@
+---
+- name: such wordpress content container
+  docker_container:
+    image: wordpress:5.6
+    name: such-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: such db data container
+  docker_container:
+    image: mariadb:10.5
+    name: such-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: such database
+  docker_container:
+    image: mariadb:10.5
+    name: such-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ such.db.name }}"
+      MYSQL_PASSWORD: "{{ such.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ such.db.user }}"
+    volumes:
+      - such-db-data:/var/lib/mysql
+
+- name: such wordpress
+  docker_container:
+    image: wordpress:5.6
+    name: such-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ such_hosts }}"
+      VIRTUAL_HOST: "{{ such_hosts }}"
+      WORDPRESS_DB_NAME: "{{ such.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ such.db.password }}"
+      WORDPRESS_DB_USER: "{{ such.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "such-db:mysql"
+    volumes:
+      - such-content:/var/www/html
+
+- name: such sftp
+  docker_container:
+    command: "{{ such.sftp.user }}:{{ such.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: such-ftp
+    restart_policy: always
+    ports:
+      - "{{ such_sftp_port }}:22"
+    volumes:
+      - such-content:/home/such/upload

@@ -84,6 +84,15 @@
         wpcontainer: "{{ shahbaz.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
+      tags: [such, backup]
+      vars:
+        dbcontainer: "{{ such.db.container }}"
+        dbname: "{{ such.db.name }}"
+        dbpassword: "{{ such.db.password }}"
+        dbuser: "{{ such.db.user }}"
+        wpcontainer: "{{ such.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
       tags: [veta, backup]
       vars:
         dbcontainer: "{{ veta.db.container }}"
@@ -107,6 +116,7 @@
     - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
     - play_vars/shahbaz.yml
+    - play_vars/such.yml
     - play_vars/veta.yml
 
 - hosts: east
