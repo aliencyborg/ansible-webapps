@@ -1,0 +1,67 @@
+---
+- name: tw-jenna wordpress content container
+  docker_container:
+    image: wordpress:5.6
+    name: tw-jenna-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: tw-jenna db data container
+  docker_container:
+    image: mariadb:10.5
+    name: tw-jenna-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: tw-jenna database
+  docker_container:
+    image: mariadb:10.5
+    name: tw-jenna-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ tw_jenna.db.name }}"
+      MYSQL_PASSWORD: "{{ tw_jenna.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ tw_jenna.db.user }}"
+    volumes:
+      - tw-jenna-db-data:/var/lib/mysql
+
+- name: tw-jenna wordpress
+  docker_container:
+    image: wordpress:5.6
+    name: tw-jenna-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ tw_jenna_hosts }}"
+      VIRTUAL_HOST: "{{ tw_jenna_hosts }}"
+      WORDPRESS_DB_NAME: "{{ tw_jenna.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ tw_jenna.db.password }}"
+      WORDPRESS_DB_USER: "{{ tw_jenna.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "tw-jenna-db:mysql"
+    volumes:
+      - tw-jenna-content:/var/www/html
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ tw_jenna.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ tw_jenna.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ tw_jenna.wp.container }}

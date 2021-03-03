@@ -1,0 +1,67 @@
+---
+- name: tw-oceanic wordpress content container
+  docker_container:
+    image: wordpress:5.6
+    name: tw-oceanic-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: tw-oceanic db data container
+  docker_container:
+    image: mariadb:10.5
+    name: tw-oceanic-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: tw-oceanic database
+  docker_container:
+    image: mariadb:10.5
+    name: tw-oceanic-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ tw_oceanic.db.name }}"
+      MYSQL_PASSWORD: "{{ tw_oceanic.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ tw_oceanic.db.user }}"
+    volumes:
+      - tw-oceanic-db-data:/var/lib/mysql
+
+- name: tw-oceanic wordpress
+  docker_container:
+    image: wordpress:5.6
+    name: tw-oceanic-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ tw_oceanic_hosts }}"
+      VIRTUAL_HOST: "{{ tw_oceanic_hosts }}"
+      WORDPRESS_DB_NAME: "{{ tw_oceanic.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ tw_oceanic.db.password }}"
+      WORDPRESS_DB_USER: "{{ tw_oceanic.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "tw-oceanic-db:mysql"
+    volumes:
+      - tw-oceanic-content:/var/www/html
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ tw_oceanic.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ tw_oceanic.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ tw_oceanic.wp.container }}

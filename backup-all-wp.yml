@@ -101,6 +101,42 @@
         dbuser: "{{ veta.db.user }}"
         wpcontainer: "{{ veta.wp.container }}"
 
+    - include: tasks/backup-wordpress.yml
+      tags: [tw, donnie, backup]
+      vars:
+        dbcontainer: "{{ tw-donnie.db.container }}"
+        dbname: "{{ tw-donnie.db.name }}"
+        dbpassword: "{{ tw-donnie.db.password }}"
+        dbuser: "{{ tw-donnie.db.user }}"
+        wpcontainer: "{{ tw-donnie.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [tw, jenna, backup]
+      vars:
+        dbcontainer: "{{ tw-jenna.db.container }}"
+        dbname: "{{ tw-jenna.db.name }}"
+        dbpassword: "{{ tw-jenna.db.password }}"
+        dbuser: "{{ tw-jenna.db.user }}"
+        wpcontainer: "{{ tw-jenn.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [tw, oceanic, backup]
+      vars:
+        dbcontainer: "{{ tw-oceanic.db.container }}"
+        dbname: "{{ tw-oceanic.db.name }}"
+        dbpassword: "{{ tw-oceanic.db.password }}"
+        dbuser: "{{ tw-oceanic.db.user }}"
+        wpcontainer: "{{ tw-oceanic.wp.container }}"
+
+    - include: tasks/backup-wordpress.yml
+      tags: [tw, sammy, backup]
+      vars:
+        dbcontainer: "{{ tw-sammy.db.container }}"
+        dbname: "{{ tw-sammy.db.name }}"
+        dbpassword: "{{ tw-sammy.db.password }}"
+        dbuser: "{{ tw-sammy.db.user }}"
+        wpcontainer: "{{ tw-sammy.wp.container }}"
+
     - include: tasks/archive-backups.yml
       tags: archive
 
@@ -118,6 +154,10 @@
     - play_vars/shahbaz.yml
     - play_vars/such.yml
     - play_vars/veta.yml
+    - play_vars/tw-donnie.yml
+    - play_vars/tw-jenna.yml
+    - play_vars/tw-oceanic.yml
+    - play_vars/tw-sammy.yml
 
 - hosts: east
   tasks:

@@ -1,0 +1,67 @@
+---
+- name: tw-donnie wordpress content container
+  docker_container:
+    image: wordpress:5.6
+    name: tw-donnie-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: tw-donnie db data container
+  docker_container:
+    image: mariadb:10.5
+    name: tw-donnie-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: tw-donnie database
+  docker_container:
+    image: mariadb:10.5
+    name: tw-donnie-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ tw_donnie.db.name }}"
+      MYSQL_PASSWORD: "{{ tw_donnie.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ tw_donnie.db.user }}"
+    volumes:
+      - tw-donnie-db-data:/var/lib/mysql
+
+- name: tw-donnie wordpress
+  docker_container:
+    image: wordpress:5.6
+    name: tw-donnie-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ tw_donnie_hosts }}"
+      VIRTUAL_HOST: "{{ tw_donnie_hosts }}"
+      WORDPRESS_DB_NAME: "{{ tw_donnie.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ tw_donnie.db.password }}"
+      WORDPRESS_DB_USER: "{{ tw_donnie.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "tw-donnie-db:mysql"
+    volumes:
+      - tw-donnie-content:/var/www/html
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ tw_donnie.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ tw_donnie.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ tw_donnie.wp.container }}

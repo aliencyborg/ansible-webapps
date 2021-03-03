@@ -79,7 +79,19 @@
       tags: sabew
     - include: tasks/such.yml
       tags: such
+    - include: tasks/tw-donnie.yml
+      tags: [tw, donnie]
+    - include: tasks/tw-jenna.yml
+      tags: [tw, jenna]
+    - include: tasks/tw-oceanic.yml
+      tags: [tw, oceanic]
+    - include: tasks/tw-sammy.yml
+      tags: [tw, sammy]
   vars_files:
     - play_vars/madeline.yml
     - play_vars/sabew-legacy.yml
     - play_vars/such.yml
+    - play_vars/tw-donnie.yml
+    - play_vars/tw-jenna.yml
+    - play_vars/tw-oceanic.yml
+    - play_vars/tw-sammy.yml
