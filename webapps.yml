@@ -73,6 +73,8 @@
 # Going to come down for a bit
 - hosts: west
   tasks:
+    - include: tasks/beton.yml
+      tags: beton
     - include: tasks/madeline.yml
       tags: madeline
     - include: tasks/sabew-legacy.yml
@@ -88,6 +90,7 @@
     - include: tasks/tw-sammy.yml
       tags: [tw, sammy]
   vars_files:
+    - play_vars/beton.yml
     - play_vars/madeline.yml
     - play_vars/sabew-legacy.yml
     - play_vars/such.yml
