@@ -64,10 +64,13 @@
   tasks:
     - include: tasks/alien-admin.yml
       tags: alien-admin
+    - include: tasks/sabew-legacy.yml
+      tags: sabew
     - include: tasks/wordpress-demo.yml
       tags: wordpress-demo
   vars_files:
     - play_vars/alien-admin.yml
+    - play_vars/sabew-legacy.yml
     - play_vars/wordpress-demo.yml
 
 # Going to come down for a bit
@@ -77,8 +80,6 @@
       tags: beton
     - include: tasks/madeline.yml
       tags: madeline
-    - include: tasks/sabew-legacy.yml
-      tags: sabew
     - include: tasks/such.yml
       tags: such
     - include: tasks/tw-donnie.yml
@@ -92,7 +93,6 @@
   vars_files:
     - play_vars/beton.yml
     - play_vars/madeline.yml
-    - play_vars/sabew-legacy.yml
     - play_vars/such.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml
