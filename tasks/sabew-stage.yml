@@ -1,7 +1,7 @@
 ---
 - name: sabew wordpress content container (stage)
   docker_container:
-    image: wordpress:5.5
+    image: wordpress:5.7
     name: sabew-stage-content
     state: stopped
     volumes:
@@ -30,12 +30,11 @@
 
 - name: sabew wordpress (stage)
   docker_container:
-    image: wordpress:5.5
+    image: wordpress:5.7
     name: sabew-stage-wp
     restart: yes
     restart_policy: always
     env:
-      HSTS: "off"
       LETSENCRYPT_HOST: "{{ sabew_stage_hosts }}"
       VIRTUAL_HOST: "{{ sabew_stage_hosts }}"
       WORDPRESS_DB_NAME: "{{ sabew_stage.db.name }}"
@@ -48,18 +47,21 @@
     volumes:
       - sabew-stage-content:/var/www/html
 
-- name: sabew sftp (stage)
-  docker_container:
-    command: "{{ sabew_stage.sftp.user }}:{{ sabew_stage.sftp.password }}:1001"
-    image: atmoz/sftp:latest
-    name: sabew-stage-ftp
-    restart_policy: always
-    ports:
-      - "{{ sabew_stage_sftp_port }}:22"
-    volumes:
-      - "sabew-stage-content:/home/{{ sabew_stage.sftp.user }}/upload"
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
 
-- name: add group access permissions to ftp directory
-  shell: docker exec sabew-stage-ftp chmod -R g+w /home/{{ sabew_stage.sftp.user }}
-#- name: add ftp user to the www-data group
-#shell: docker exec sabew-stage-ftp usermod -g www-data {{ sabew_stage.sftp.user }}
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ sabew_stage.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ sabew_stage.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ sabew_stage.wp.container }}
