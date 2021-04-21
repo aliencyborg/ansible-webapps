@@ -74,6 +74,8 @@
   tasks:
     - include: tasks/beton.yml
       tags: beton
+    - include: tasks/commgap.yml
+      tags: commgap
     - include: tasks/madeline.yml
       tags: madeline
     - include: tasks/sabew-stage.yml
@@ -90,6 +92,7 @@
       tags: [tw, sammy]
   vars_files:
     - play_vars/beton.yml
+    - play_vars/commgap.yml
     - play_vars/madeline.yml
     - play_vars/sabew-stage.yml
     - play_vars/such.yml
