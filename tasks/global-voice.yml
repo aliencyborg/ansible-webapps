@@ -1,0 +1,67 @@
+---
+- name: global-voice wordpress content container
+  docker_container:
+    image: wordpress:5.7
+    name: global-voice-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: global-voice db data container
+  docker_container:
+    image: mariadb:10.5
+    name: global-voice-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: global-voice database
+  docker_container:
+    image: mariadb:10.5
+    name: global-voice-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ global_voice.db.name }}"
+      MYSQL_PASSWORD: "{{ global_voice.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ global_voice.db.user }}"
+    volumes:
+      - global-voice-db-data:/var/lib/mysql
+
+- name: global-voice wordpress
+  docker_container:
+    image: wordpress:5.7
+    name: global-voice-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ global_voice_hosts }}"
+      VIRTUAL_HOST: "{{ global_voice_hosts }}"
+      WORDPRESS_DB_NAME: "{{ global_voice.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ global_voice.db.password }}"
+      WORDPRESS_DB_USER: "{{ global_voice.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "global-voice-db:mysql"
+    volumes:
+      - global-voice-content:/var/www/html
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ global_voice.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ global_voice.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ global_voice.wp.container }}
