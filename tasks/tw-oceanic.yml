@@ -47,6 +47,17 @@
     volumes:
       - tw-oceanic-content:/var/www/html
 
+- name: tw-oceanic sftp
+  docker_container:
+    command: "{{ tw_oceanic.sftp.user }}:{{ tw_oceanic.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: tw-oceanic-ftp
+    restart_policy: always
+    ports:
+      - "{{ tw_oceanic_sftp_port }}:22"
+    volumes:
+      - "tw-oceanic-content:/home/{{ tw_oceanic.sftp.user }}/upload"
+
 - name: ensure app-files directory exists
   file:
     path: ~/app-files
