@@ -25,6 +25,8 @@
       MYSQL_PASSWORD: "{{ sabew_stage.db.password }}"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ sabew_stage.db.user }}"
+    ports:
+      - "{{ sabew_stage_db_port }}:3306"
     volumes:
       - sabew-stage-db-data:/var/lib/mysql
 
@@ -46,6 +48,17 @@
       - "sabew-stage-db:mysql"
     volumes:
       - sabew-stage-content:/var/www/html
+
+- name: sabew sftp
+  docker_container:
+    command: "{{ sabew_stage.sftp.user }}:{{ sabew_stage.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: sabew-stage-ftp
+    restart_policy: always
+    ports:
+      - "{{ sabew_stage_sftp_port }}:22"
+    volumes:
+      - sabew-stage-content:/home/sabew/upload
 
 - name: ensure app-files directory exists
   file:
