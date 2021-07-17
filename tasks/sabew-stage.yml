@@ -60,7 +60,7 @@
     ports:
       - "{{ sabew_stage_sftp_port }}:22"
     volumes:
-      - sabew-stage-content:/home/sabew/upload
+      - "sabew-stage-content:/home/{{ sabew_stage.sftp.user }}/upload"
 
 - name: ensure app-files directory exists
   file:
