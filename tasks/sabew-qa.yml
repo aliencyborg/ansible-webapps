@@ -1,0 +1,82 @@
+---
+- name: sabew wordpress content container (qa)
+  docker_container:
+    image: wordpress:5.7
+    name: sabew-qa-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: sabew db data container (qa)
+  docker_container:
+    image: mariadb:10.5
+    name: sabew-qa-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: sabew database (qa)
+  docker_container:
+    image: mariadb:10.5
+    name: sabew-qa-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ sabew_qa.db.name }}"
+      MYSQL_PASSWORD: "{{ sabew_qa.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ sabew_qa.db.user }}"
+    exposed_ports:
+      - "3306"
+    published_ports:
+      - "0.0.0.0:{{ sabew_qa_db_port }}:3306/tcp"
+    volumes:
+      - sabew-qa-db-data:/var/lib/mysql
+
+- name: sabew wordpress (qa)
+  docker_container:
+    image: wordpress:5.7
+    name: sabew-qa-wp
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ sabew_qa_hosts }}"
+      VIRTUAL_HOST: "{{ sabew_qa_hosts }}"
+      WORDPRESS_DB_NAME: "{{ sabew_qa.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ sabew_qa.db.password }}"
+      WORDPRESS_DB_USER: "{{ sabew_qa.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "sabew-qa-db:mysql"
+    volumes:
+      - sabew-qa-content:/var/www/html
+
+- name: sabew sftp
+  docker_container:
+    command: "{{ sabew_qa.sftp.user }}:{{ sabew_qa.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: sabew-qa-ftp
+    restart_policy: always
+    ports:
+      - "{{ sabew_qa_sftp_port }}:22"
+    volumes:
+      - "sabew-qa-content:/home/{{ sabew_qa.sftp.user }}/upload"
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ sabew_qa.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ sabew_qa.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ sabew_qa.wp.container }}
