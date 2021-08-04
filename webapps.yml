@@ -82,6 +82,8 @@
       tags: madeline
     - include: tasks/sabew-stage.yml
       tags: sabew-stage
+    - include: tasks/sabew-pg.yml
+      tags: sabew-pg
     - include: tasks/sabew-qa.yml
       tags: sabew-qa
     - include: tasks/such.yml
@@ -99,6 +101,7 @@
     - play_vars/commgap.yml
     - play_vars/global-voice.yml
     - play_vars/madeline.yml
+    - play_vars/sabew-pg.yml
     - play_vars/sabew-qa.yml
     - play_vars/sabew-stage.yml
     - play_vars/such.yml

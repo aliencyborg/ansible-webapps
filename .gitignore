@@ -7,3 +7,5 @@ inventory
 /play_vars/*.yml
 !/play_vars/*.example.yml
 
+# sabew database
+files/*sabew*sql
