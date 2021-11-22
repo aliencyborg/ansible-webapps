@@ -80,6 +80,8 @@
       tags: global-voice
     - include: tasks/madeline.yml
       tags: madeline
+    - include: tasks/os-ticket.yml
+      tags: os-ticket
     - include: tasks/sabew-stage.yml
       tags: sabew-stage
     - include: tasks/sabew-pg.yml
@@ -101,6 +103,7 @@
     - play_vars/commgap.yml
     - play_vars/global-voice.yml
     - play_vars/madeline.yml
+    - play_vars/os-ticket.yml
     - play_vars/sabew-pg.yml
     - play_vars/sabew-qa.yml
     - play_vars/sabew-stage.yml
