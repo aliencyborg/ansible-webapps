@@ -28,6 +28,18 @@
     volumes:
       - ctp-wp-db-data:/var/lib/mysql
 
+# - name: ctp adminer
+#   docker_container:
+#     image: adminer
+#     name: ctp-adminer
+#     env:
+#       VIRTUAL_HOST: "{{ ctp_adminer_hosts }}"
+#       VIRTUAL_PORT: "8080"
+#     exposed_ports:
+#       - "8080"
+#     links:
+#       - "ctp-wp-db:mysql"
+
 - name: ctp wordpress
   docker_container:
     image: wordpress:5.5

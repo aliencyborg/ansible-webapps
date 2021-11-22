@@ -1,7 +1,7 @@
 ---
 - name: biscuit wordpress content container
   docker_container:
-    image: wordpress:5.5
+    image: wordpress:5.8
     name: biscuitman-content
     state: stopped
     volumes:
@@ -9,7 +9,7 @@
 
 - name: biscuit db data container
   docker_container:
-    image: mariadb:10.4
+    image: mariadb:10
     name: biscuitman-db-data
     state: stopped
     volumes:
@@ -17,7 +17,7 @@
 
 - name: biscuit database
   docker_container:
-    image: mariadb:10.4
+    image: mariadb:10
     name: biscuitman-db
     restart_policy: always
     env:
@@ -30,7 +30,7 @@
 
 - name: biscuit wordpress
   docker_container:
-    image: wordpress:5.5
+    image: wordpress:5.8
     name: biscuitman-wp
     restart: yes
     restart_policy: always
