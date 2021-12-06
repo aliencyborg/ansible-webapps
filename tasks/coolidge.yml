@@ -59,3 +59,15 @@
       - "{{ coolidge_sftp_port }}:22"
     volumes:
       - coolidge-content:/home/alien/upload
+
+- name: coolidge adminer
+  docker_container:
+    image: adminer
+    name: coolidge-adminer
+    env:
+      VIRTUAL_HOST: "{{ coolidge_adminer_hosts }}"
+      VIRTUAL_PORT: "8080"
+    exposed_ports:
+      - "8080"
+    links:
+      - "coolidge-db:postgres"
