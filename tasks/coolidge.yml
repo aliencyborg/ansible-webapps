@@ -70,4 +70,4 @@
     exposed_ports:
       - "8080"
     links:
-      - "coolidge-db:postgres"
+      - "coolidge-db:db"
