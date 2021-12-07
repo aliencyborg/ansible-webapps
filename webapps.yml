@@ -1,10 +1,7 @@
 ---
-- hosts: east
-  tasks:
-    - include: tasks/coolidge.yml
-      tags: coolidge
-  vars_files:
-    - play_vars/coolidge.yml
+# - hosts: east
+#   tasks:
+#   vars_files:
 
 - hosts: west
   tasks:
@@ -16,20 +13,16 @@
       tags: biscuitman
     - include: tasks/commgap.yml
       tags: commgap
+    - include: tasks/coolidge.yml
+      tags: coolidge
     - include: tasks/global-voice.yml
       tags: global-voice
     - include: tasks/madeline.yml
       tags: madeline
-    - include: tasks/os-ticket.yml
-      tags: os-ticket
     - include: tasks/platypus.yml
       tags: platypus
-    - include: tasks/sabew-stage.yml
-      tags: sabew-stage
     - include: tasks/sabew-pg.yml
       tags: sabew-pg
-    - include: tasks/sabew-qa.yml
-      tags: sabew-qa
     - include: tasks/such.yml
       tags: such
     - include: tasks/tw-donnie.yml
@@ -45,6 +38,7 @@
     - play_vars/beton.yml
     - play_vars/biscuitman.yml
     - play_vars/commgap.yml
+    - play_vars/coolidge.yml
     - play_vars/global-voice.yml
     - play_vars/madeline.yml
     - play_vars/os-ticket.yml
