@@ -117,7 +117,7 @@
         dbname: "{{ tw_jenna.db.name }}"
         dbpassword: "{{ tw_jenna.db.password }}"
         dbuser: "{{ tw_jenna.db.user }}"
-        wpcontainer: "{{ tw_jenn.wp.container }}"
+        wpcontainer: "{{ tw_jenna.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, oceanic, backup]
