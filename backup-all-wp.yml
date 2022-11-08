@@ -104,38 +104,38 @@
     - include: tasks/backup-wordpress.yml
       tags: [tw, donnie, backup]
       vars:
-        dbcontainer: "{{ tw-donnie.db.container }}"
-        dbname: "{{ tw-donnie.db.name }}"
-        dbpassword: "{{ tw-donnie.db.password }}"
-        dbuser: "{{ tw-donnie.db.user }}"
-        wpcontainer: "{{ tw-donnie.wp.container }}"
+        dbcontainer: "{{ tw_donnie.db.container }}"
+        dbname: "{{ tw_donnie.db.name }}"
+        dbpassword: "{{ tw_donnie.db.password }}"
+        dbuser: "{{ tw_donnie.db.user }}"
+        wpcontainer: "{{ tw_donnie.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, jenna, backup]
       vars:
-        dbcontainer: "{{ tw-jenna.db.container }}"
-        dbname: "{{ tw-jenna.db.name }}"
-        dbpassword: "{{ tw-jenna.db.password }}"
-        dbuser: "{{ tw-jenna.db.user }}"
-        wpcontainer: "{{ tw-jenn.wp.container }}"
+        dbcontainer: "{{ tw_jenna.db.container }}"
+        dbname: "{{ tw_jenna.db.name }}"
+        dbpassword: "{{ tw_jenna.db.password }}"
+        dbuser: "{{ tw_jenna.db.user }}"
+        wpcontainer: "{{ tw_jenn.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, oceanic, backup]
       vars:
-        dbcontainer: "{{ tw-oceanic.db.container }}"
-        dbname: "{{ tw-oceanic.db.name }}"
-        dbpassword: "{{ tw-oceanic.db.password }}"
-        dbuser: "{{ tw-oceanic.db.user }}"
-        wpcontainer: "{{ tw-oceanic.wp.container }}"
+        dbcontainer: "{{ tw_oceanic.db.container }}"
+        dbname: "{{ tw_oceanic.db.name }}"
+        dbpassword: "{{ tw_oceanic.db.password }}"
+        dbuser: "{{ tw_oceanic.db.user }}"
+        wpcontainer: "{{ tw_oceanic.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, sammy, backup]
       vars:
-        dbcontainer: "{{ tw-sammy.db.container }}"
-        dbname: "{{ tw-sammy.db.name }}"
-        dbpassword: "{{ tw-sammy.db.password }}"
-        dbuser: "{{ tw-sammy.db.user }}"
-        wpcontainer: "{{ tw-sammy.wp.container }}"
+        dbcontainer: "{{ tw_sammy.db.container }}"
+        dbname: "{{ tw_sammy.db.name }}"
+        dbpassword: "{{ tw_sammy.db.password }}"
+        dbuser: "{{ tw_sammy.db.user }}"
+        wpcontainer: "{{ tw_sammy.wp.container }}"
 
     - include: tasks/archive-backups.yml
       tags: archive
@@ -182,11 +182,11 @@
     - include: tasks/backup-wordpress.yml
       tags: [sabew-stage, backup]
       vars:
-        dbcontainer: "{{ sabew-stage.db.container }}"
-        dbname: "{{ sabew-stage.db.name }}"
-        dbpassword: "{{ sabew-stage.db.password }}"
-        dbuser: "{{ sabew-stage.db.user }}"
-        wpcontainer: "{{ sabew-stage.wp.container }}"
+        dbcontainer: "{{ sabew_stage.db.container }}"
+        dbname: "{{ sabew_stage.db.name }}"
+        dbpassword: "{{ sabew_stage.db.password }}"
+        dbuser: "{{ sabew_stage.db.user }}"
+        wpcontainer: "{{ sabew_stage.wp.container }}"
 
     - include: tasks/backup-wordpress.yml
       tags: [zelda, backup]
