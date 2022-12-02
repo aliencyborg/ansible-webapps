@@ -15,6 +15,8 @@
       tags: commgap
     - include: tasks/coolidge.yml
       tags: coolidge
+    - include: tasks/demo.yml
+      tags: [demo]
     - include: tasks/global-voice.yml
       tags: global-voice
     - include: tasks/madeline.yml
@@ -39,6 +41,7 @@
     - play_vars/biscuitman.yml
     - play_vars/commgap.yml
     - play_vars/coolidge.yml
+    - play_vars/demo.yml
     - play_vars/global-voice.yml
     - play_vars/madeline.yml
     - play_vars/os-ticket.yml

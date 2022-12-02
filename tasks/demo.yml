@@ -1,0 +1,69 @@
+---
+- name: demo wordpress content container
+  docker_container:
+    image: wordpress:5.6
+    name: demo-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: demo db data container
+  docker_container:
+    image: mariadb:10.5
+    name: demo-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: demo database
+  docker_container:
+    image: mariadb:10.5
+    name: demo-db
+    recreate: yes
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ demo.db.name }}"
+      MYSQL_PASSWORD: "{{ demo.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ demo.db.user }}"
+    volumes:
+      - demo-db-data:/var/lib/mysql
+
+- name: demo wordpress
+  docker_container:
+    image: wordpress:5.6
+    name: "{{ demo.wp.container }}"
+    recreate: yes
+    restart: yes
+    restart_policy: always
+    env:
+      LETSENCRYPT_HOST: "{{ demo_hosts }}"
+      VIRTUAL_HOST: "{{ demo_hosts }}"
+      WORDPRESS_DB_NAME: "{{ demo.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ demo.db.password }}"
+      WORDPRESS_DB_USER: "{{ demo.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "demo-db:mysql"
+    volumes:
+      - demo-content:/var/www/html
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy htaccess file to remote
+  copy:
+    src: htaccess
+    dest: ~/app-files/htaccess
+
+- name: copy htaccess into wordpress container
+  shell: docker cp ~/app-files/htaccess {{ demo.wp.container }}:/var/www/html/.htaccess
+
+- name: set ownership of htaccess
+  shell: docker exec {{ demo.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+
+- name: restart wordpress
+  shell: docker restart {{ demo.wp.container }}
