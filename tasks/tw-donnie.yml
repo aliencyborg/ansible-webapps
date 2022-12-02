@@ -2,7 +2,7 @@
 - name: tw-donnie wordpress content container
   docker_container:
     image: wordpress:5.6
-    name: tw-donnie-content
+    name: tw-donnie-content-2
     state: stopped
     volumes:
       - /var/www/html
@@ -10,7 +10,7 @@
 - name: tw-donnie db data container
   docker_container:
     image: mariadb:10.5
-    name: tw-donnie-db-data
+    name: tw-donnie-db-data-2
     state: stopped
     volumes:
       - /var/lib/mysql
@@ -19,6 +19,7 @@
   docker_container:
     image: mariadb:10.5
     name: tw-donnie-db
+    recreate: yes
     restart_policy: always
     env:
       MYSQL_DATABASE: "{{ tw_donnie.db.name }}"
@@ -26,12 +27,13 @@
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       MYSQL_USER: "{{ tw_donnie.db.user }}"
     volumes:
-      - tw-donnie-db-data:/var/lib/mysql
+      - tw-donnie-db-data-2:/var/lib/mysql
 
 - name: tw-donnie wordpress
   docker_container:
     image: wordpress:5.6
-    name: tw-donnie-wp
+    name: "{{ tw_donnie.wp.container }}"
+    recreate: yes
     restart: yes
     restart_policy: always
     env:
@@ -45,7 +47,18 @@
     links:
       - "tw-donnie-db:mysql"
     volumes:
-      - tw-donnie-content:/var/www/html
+      - tw-donnie-content-2:/var/www/html
+
+- name: tw-donnie sftp
+  docker_container:
+    command: "{{ tw_donnie.sftp.user }}:{{ tw_donnie.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: tw-donnie-ftp
+    restart_policy: always
+    ports:
+      - "{{ tw_donnie_sftp_port }}:22"
+    volumes:
+      - "tw-donnie-content-2:/home/{{ tw_donnie.sftp.user }}/upload"
 
 - name: ensure app-files directory exists
   file:
