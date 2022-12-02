@@ -27,6 +27,8 @@
       tags: sabew-pg
     - include: tasks/such.yml
       tags: such
+    - include: tasks/sudo-livebook.yml
+      tags: [sudo, livebook]
     - include: tasks/tw-donnie.yml
       tags: [tw, donnie]
     - include: tasks/tw-jenna.yml
