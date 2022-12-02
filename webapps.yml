@@ -51,6 +51,7 @@
     - play_vars/sabew-pg.yml
     - play_vars/sabew-qa.yml
     - play_vars/sabew-stage.yml
+    - play_vars/sudo-livebook.yml
     - play_vars/such.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml

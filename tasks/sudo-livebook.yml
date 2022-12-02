@@ -16,6 +16,7 @@
     restart_policy: always
     env:
       LETSENCRYPT_HOST: "{{ sudo_livebook_hosts }}"
+      LIVEBOOK_PASSWORD: "{{ sudo_livebook.password }}"
       VIRTUAL_HOST: "{{ sudo_livebook_hosts }}"
       VIRTUAL_PORT: "8080"
     exposed_ports:
