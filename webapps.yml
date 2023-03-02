@@ -7,6 +7,8 @@
   tasks:
     - include: tasks/afsheen.yml
       tags: afsheen
+    - include: tasks/ascounseling.yml
+      tags: ascounseling
     - include: tasks/beton.yml
       tags: beton
     - include: tasks/biscuitman.yml
@@ -39,6 +41,7 @@
       tags: [tw, sammy]
   vars_files:
     - play_vars/afsheen.yml
+    - play_vars/ascounseling.yml
     - play_vars/beton.yml
     - play_vars/biscuitman.yml
     - play_vars/commgap.yml
