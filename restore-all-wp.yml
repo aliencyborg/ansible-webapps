@@ -5,114 +5,18 @@
       tags: [archive, push]
       vars:
         #TODO make this more dynamic
-        localarchivedir: "/$HOME/ansible-fetch/beast/home/hank/archives/"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [biscuit-stage, restore]
-      vars:
-        backupdbcontainer: "{{ biscuit_stage.db.container }}"
-        backupwpcontainer: "{{ biscuit_stage.wp.container }}"
-        dbcontainer: "{{ biscuit_stage.db.container }}"
-        dbname: "{{ biscuit_stage.db.name }}"
-        dbpassword: "{{ biscuit_stage.db.password }}"
-        dbuser: "{{ biscuit_stage.db.user }}"
-        wpcontainer: "{{ biscuit_stage.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [biscuitman, restore]
-      vars:
-        backupdbcontainer: "{{ biscuitman.db.container }}"
-        backupwpcontainer: "{{ biscuitman.wp.container }}"
-        dbcontainer: "{{ biscuitman.db.container }}"
-        dbname: "{{ biscuitman.db.name }}"
-        dbpassword: "{{ biscuitman.db.password }}"
-        dbuser: "{{ biscuitman.db.user }}"
-        wpcontainer: "{{ biscuitman.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [bowen, restore]
-      vars:
-        backupdbcontainer: "{{ bowen.db.container }}"
-        backupwpcontainer: "{{ bowen.wp.container }}"
-        dbcontainer: "{{ bowen.db.container }}"
-        dbname: "{{ bowen.db.name }}"
-        dbpassword: "{{ bowen.db.password }}"
-        dbuser: "{{ bowen.db.user }}"
-        wpcontainer: "{{ bowen.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [joel, restore]
-      vars:
-        backupdbcontainer: "{{ joel.db.container }}"
-        backupwpcontainer: "{{ joel.wp.container }}"
-        dbcontainer: "{{ joel.db.container }}"
-        dbname: "{{ joel.db.name }}"
-        dbpassword: "{{ joel.db.password }}"
-        dbuser: "{{ joel.db.user }}"
-        wpcontainer: "{{ joel.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [just-us, restore]
-      vars:
-        backupdbcontainer: "{{ just_us.db.container }}"
-        backupwpcontainer: "{{ just_us.wp.container }}"
-        dbcontainer: "{{ just_us.db.container }}"
-        dbname: "{{ just_us.db.name }}"
-        dbpassword: "{{ just_us.db.password }}"
-        dbuser: "{{ just_us.db.user }}"
-        wpcontainer: "{{ just_us.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [mmm, restore]
-      vars:
-        backupdbcontainer: "{{ mmm.db.container }}"
-        backupwpcontainer: "{{ mmm.wp.container }}"
-        dbcontainer: "{{ mmm.db.container }}"
-        dbname: "{{ mmm.db.name }}"
-        dbpassword: "{{ mmm.db.password }}"
-        dbuser: "{{ mmm.db.user }}"
-        wpcontainer: "{{ mmm.wp.container }}"
+        localarchivedir: '/$HOME/ansible-fetch/beast/home/hank/archives/'
 
     - include: tasks/restore-wordpress.yml
       tags: [platypus, restore]
       vars:
-        backupdbcontainer: "{{ platypus.db.container }}"
-        backupwpcontainer: "{{ platypus.wp.container }}"
-        dbcontainer: "{{ platypus.db.container }}"
-        dbname: "{{ platypus.db.name }}"
-        dbpassword: "{{ platypus.db.password }}"
-        dbuser: "{{ platypus.db.user }}"
-        wpcontainer: "{{ platypus.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [shahbaz, restore]
-      vars:
-        backupdbcontainer: "{{ shahbaz.db.container }}"
-        backupwpcontainer: "{{ shahbaz.wp.container }}"
-        dbcontainer: "{{ shahbaz.db.container }}"
-        dbname: "{{ shahbaz.db.name }}"
-        dbpassword: "{{ shahbaz.db.password }}"
-        dbuser: "{{ shahbaz.db.user }}"
-        wpcontainer: "{{ shahbaz.wp.container }}"
-
-    - include: tasks/restore-wordpress.yml
-      tags: [veta, restore]
-      vars:
-        backupdbcontainer: "{{ veta.db.container }}"
-        backupwpcontainer: "{{ veta.wp.container }}"
-        dbcontainer: "{{ veta.db.container }}"
-        dbname: "{{ veta.db.name }}"
-        dbpassword: "{{ veta.db.password }}"
-        dbuser: "{{ veta.db.user }}"
-        wpcontainer: "{{ veta.wp.container }}"
+        backupdbcontainer: '{{ platypus.db.container }}'
+        backupwpcontainer: '{{ platypus.wp.container }}'
+        dbcontainer: '{{ platypus.db.container }}'
+        dbname: '{{ platypus.db.name }}'
+        dbpassword: '{{ platypus.db.password }}'
+        dbuser: '{{ platypus.db.user }}'
+        wpcontainer: '{{ platypus.wp.container }}'
 
   vars_files:
-    - play_vars/biscuitman-stage.yml
-    - play_vars/biscuitman.yml
-    - play_vars/bowen.yml
-    - play_vars/joel.yml
-    - play_vars/just-us.yml
-    - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
-    - play_vars/shahbaz.yml
-    - play_vars/veta.yml

@@ -4,138 +4,57 @@
     - name: register timestamp
       tags: [time]
       set_fact:
-        timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+        timestamp: '{{ ansible_date_time.iso8601_basic_short }}'
 
     - name: debug timestamp
       tags: [time]
       debug:
-        msg: "timestamp: {{ timestamp }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [biscuitman, backup]
-      vars:
-        dbcontainer: "{{ biscuitman.db.container }}"
-        dbname: "{{ biscuitman.db.name }}"
-        dbpassword: "{{ biscuitman.db.password }}"
-        dbuser: "{{ biscuitman.db.user }}"
-        wpcontainer: "{{ biscuitman.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [biscuit-stage, backup]
-      vars:
-        dbcontainer: "{{ biscuit_stage.db.container }}"
-        dbname: "{{ biscuit_stage.db.name }}"
-        dbpassword: "{{ biscuit_stage.db.password }}"
-        dbuser: "{{ biscuit_stage.db.user }}"
-        wpcontainer: "{{ biscuit_stage.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [bowen, backup]
-      vars:
-        dbcontainer: "{{ bowen.db.container }}"
-        dbname: "{{ bowen.db.name }}"
-        dbpassword: "{{ bowen.db.password }}"
-        dbuser: "{{ bowen.db.user }}"
-        wpcontainer: "{{ bowen.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [joel, backup]
-      vars:
-        dbcontainer: "{{ joel.db.container }}"
-        dbname: "{{ joel.db.name }}"
-        dbpassword: "{{ joel.db.password }}"
-        dbuser: "{{ joel.db.user }}"
-        wpcontainer: "{{ joel.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [just-us, backup]
-      vars:
-        dbcontainer: "{{ just_us.db.container }}"
-        dbname: "{{ just_us.db.name }}"
-        dbpassword: "{{ just_us.db.password }}"
-        dbuser: "{{ just_us.db.user }}"
-        wpcontainer: "{{ just_us.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [mmm, backup]
-      vars:
-        dbcontainer: "{{ mmm.db.container }}"
-        dbname: "{{ mmm.db.name }}"
-        dbpassword: "{{ mmm.db.password }}"
-        dbuser: "{{ mmm.db.user }}"
-        wpcontainer: "{{ mmm.wp.container }}"
+        msg: 'timestamp: {{ timestamp }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [platypus, backup]
       vars:
-        dbcontainer: "{{ platypus.db.container }}"
-        dbname: "{{ platypus.db.name }}"
-        dbpassword: "{{ platypus.db.password }}"
-        dbuser: "{{ platypus.db.user }}"
-        wpcontainer: "{{ platypus.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [shahbaz, backup]
-      vars:
-        dbcontainer: "{{ shahbaz.db.container }}"
-        dbname: "{{ shahbaz.db.name }}"
-        dbpassword: "{{ shahbaz.db.password }}"
-        dbuser: "{{ shahbaz.db.user }}"
-        wpcontainer: "{{ shahbaz.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [such, backup]
-      vars:
-        dbcontainer: "{{ such.db.container }}"
-        dbname: "{{ such.db.name }}"
-        dbpassword: "{{ such.db.password }}"
-        dbuser: "{{ such.db.user }}"
-        wpcontainer: "{{ such.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [veta, backup]
-      vars:
-        dbcontainer: "{{ veta.db.container }}"
-        dbname: "{{ veta.db.name }}"
-        dbpassword: "{{ veta.db.password }}"
-        dbuser: "{{ veta.db.user }}"
-        wpcontainer: "{{ veta.wp.container }}"
+        dbcontainer: '{{ platypus.db.container }}'
+        dbname: '{{ platypus.db.name }}'
+        dbpassword: '{{ platypus.db.password }}'
+        dbuser: '{{ platypus.db.user }}'
+        wpcontainer: '{{ platypus.wp.container }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, donnie, backup]
       vars:
-        dbcontainer: "{{ tw_donnie.db.container }}"
-        dbname: "{{ tw_donnie.db.name }}"
-        dbpassword: "{{ tw_donnie.db.password }}"
-        dbuser: "{{ tw_donnie.db.user }}"
-        wpcontainer: "{{ tw_donnie.wp.container }}"
+        dbcontainer: '{{ tw_donnie.db.container }}'
+        dbname: '{{ tw_donnie.db.name }}'
+        dbpassword: '{{ tw_donnie.db.password }}'
+        dbuser: '{{ tw_donnie.db.user }}'
+        wpcontainer: '{{ tw_donnie.wp.container }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, jenna, backup]
       vars:
-        dbcontainer: "{{ tw_jenna.db.container }}"
-        dbname: "{{ tw_jenna.db.name }}"
-        dbpassword: "{{ tw_jenna.db.password }}"
-        dbuser: "{{ tw_jenna.db.user }}"
-        wpcontainer: "{{ tw_jenna.wp.container }}"
+        dbcontainer: '{{ tw_jenna.db.container }}'
+        dbname: '{{ tw_jenna.db.name }}'
+        dbpassword: '{{ tw_jenna.db.password }}'
+        dbuser: '{{ tw_jenna.db.user }}'
+        wpcontainer: '{{ tw_jenna.wp.container }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, oceanic, backup]
       vars:
-        dbcontainer: "{{ tw_oceanic.db.container }}"
-        dbname: "{{ tw_oceanic.db.name }}"
-        dbpassword: "{{ tw_oceanic.db.password }}"
-        dbuser: "{{ tw_oceanic.db.user }}"
-        wpcontainer: "{{ tw_oceanic.wp.container }}"
+        dbcontainer: '{{ tw_oceanic.db.container }}'
+        dbname: '{{ tw_oceanic.db.name }}'
+        dbpassword: '{{ tw_oceanic.db.password }}'
+        dbuser: '{{ tw_oceanic.db.user }}'
+        wpcontainer: '{{ tw_oceanic.wp.container }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, sammy, backup]
       vars:
-        dbcontainer: "{{ tw_sammy.db.container }}"
-        dbname: "{{ tw_sammy.db.name }}"
-        dbpassword: "{{ tw_sammy.db.password }}"
-        dbuser: "{{ tw_sammy.db.user }}"
-        wpcontainer: "{{ tw_sammy.wp.container }}"
+        dbcontainer: '{{ tw_sammy.db.container }}'
+        dbname: '{{ tw_sammy.db.name }}'
+        dbpassword: '{{ tw_sammy.db.password }}'
+        dbuser: '{{ tw_sammy.db.user }}'
+        wpcontainer: '{{ tw_sammy.wp.container }}'
 
     - include: tasks/archive-backups.yml
       tags: archive
@@ -144,67 +63,8 @@
       tags: archive
 
   vars_files:
-    - play_vars/biscuitman-stage.yml
-    - play_vars/biscuitman.yml
-    - play_vars/bowen.yml
-    - play_vars/joel.yml
-    - play_vars/just-us.yml
-    - play_vars/my-market-mentor.yml
     - play_vars/platypus.yml
-    - play_vars/shahbaz.yml
-    - play_vars/such.yml
-    - play_vars/veta.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml
     - play_vars/tw-oceanic.yml
     - play_vars/tw-sammy.yml
-
-- hosts: east
-  tasks:
-    - include: tasks/backup-wordpress.yml
-      tags: [afsheen, backup]
-      vars:
-        dbcontainer: "{{ afsheen.db.container }}"
-        dbname: "{{ afsheen.db.name }}"
-        dbpassword: "{{ afsheen.db.password }}"
-        dbuser: "{{ afsheen.db.user }}"
-        wpcontainer: "{{ afsheen.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [legiticus, backup]
-      vars:
-        dbcontainer: "{{ legiticus.db.container }}"
-        dbname: "{{ legiticus.db.name }}"
-        dbpassword: "{{ legiticus.db.password }}"
-        dbuser: "{{ legiticus.db.user }}"
-        wpcontainer: "{{ legiticus.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [sabew-stage, backup]
-      vars:
-        dbcontainer: "{{ sabew_stage.db.container }}"
-        dbname: "{{ sabew_stage.db.name }}"
-        dbpassword: "{{ sabew_stage.db.password }}"
-        dbuser: "{{ sabew_stage.db.user }}"
-        wpcontainer: "{{ sabew_stage.wp.container }}"
-
-    - include: tasks/backup-wordpress.yml
-      tags: [zelda, backup]
-      vars:
-        dbcontainer: "{{ zelda.db.container }}"
-        dbname: "{{ zelda.db.name }}"
-        dbpassword: "{{ zelda.db.password }}"
-        dbuser: "{{ zelda.db.user }}"
-        wpcontainer: "{{ zelda.wp.container }}"
-
-    - include: tasks/archive-backups.yml
-      tags: archive
-
-    - include: tasks/fetch-archives.yml
-      tags: archive
-
-  vars_files:
-    - play_vars/afsheen.yml
-    - play_vars/legiticus.yml
-    - play_vars/sabew-stage.yml
-    - play_vars/zelda.yml

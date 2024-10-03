@@ -5,32 +5,10 @@
 
 - hosts: west
   tasks:
-    - include: tasks/afsheen.yml
-      tags: afsheen
-    - include: tasks/ascounseling.yml
-      tags: ascounseling
-    - include: tasks/beton.yml
-      tags: beton
-    - include: tasks/biscuitman.yml
-      tags: biscuitman
-    - include: tasks/commgap.yml
-      tags: commgap
     - include: tasks/coolidge.yml
       tags: coolidge
-    - include: tasks/demo.yml
-      tags: [demo]
-    - include: tasks/global-voice.yml
-      tags: global-voice
-    - include: tasks/madeline.yml
-      tags: madeline
     - include: tasks/platypus.yml
       tags: platypus
-    - include: tasks/sabew-pg.yml
-      tags: sabew-pg
-    - include: tasks/such.yml
-      tags: such
-    - include: tasks/sudo-livebook.yml
-      tags: [sudo, livebook]
     - include: tasks/tw-donnie.yml
       tags: [tw, donnie]
     - include: tasks/tw-jenna.yml
@@ -40,22 +18,8 @@
     - include: tasks/tw-sammy.yml
       tags: [tw, sammy]
   vars_files:
-    - play_vars/afsheen.yml
-    - play_vars/ascounseling.yml
-    - play_vars/beton.yml
-    - play_vars/biscuitman.yml
-    - play_vars/commgap.yml
     - play_vars/coolidge.yml
-    - play_vars/demo.yml
-    - play_vars/global-voice.yml
-    - play_vars/madeline.yml
-    - play_vars/os-ticket.yml
     - play_vars/platypus.yml
-    - play_vars/sabew-pg.yml
-    - play_vars/sabew-qa.yml
-    - play_vars/sabew-stage.yml
-    - play_vars/sudo-livebook.yml
-    - play_vars/such.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml
     - play_vars/tw-oceanic.yml
