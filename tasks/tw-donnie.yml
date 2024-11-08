@@ -2,7 +2,7 @@
 - name: tw-donnie wordpress content container
   docker_container:
     image: wordpress:5.6
-    name: tw-donnie-content-2
+    name: "{{ tw_donnie.wp.content }}"
     state: stopped
     volumes:
       - /var/www/html
@@ -47,7 +47,7 @@
     links:
       - "tw-donnie-db:mysql"
     volumes:
-      - tw-donnie-content-2:/var/www/html
+      - "{{ tw_donnie.wp.content }}:/var/www/html"
 
 - name: tw-donnie sftp
   docker_container:
@@ -58,7 +58,7 @@
     ports:
       - "{{ tw_donnie_sftp_port }}:22"
     volumes:
-      - "tw-donnie-content-2:/home/{{ tw_donnie.sftp.user }}/upload"
+      - "{{ tw_donnie.wp.content }}:/home/{{ tw_donnie.sftp.user }}/upload"
 
 - name: ensure app-files directory exists
   file:
@@ -67,7 +67,7 @@
 
 - name: copy htaccess file to remote
   copy:
-    src: htaccess
+    src: ../files/htaccess
     dest: ~/app-files/htaccess
 
 - name: copy htaccess into wordpress container

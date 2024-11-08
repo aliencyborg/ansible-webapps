@@ -56,7 +56,7 @@
 
 - name: copy htaccess file to remote
   copy:
-    src: htaccess
+    src: ../files/htaccess
     dest: ~/app-files/htaccess
 
 - name: copy htaccess into wordpress container
