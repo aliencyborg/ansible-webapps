@@ -1,0 +1,17 @@
+---
+- name: Create www-data group
+  group:
+    name: www-data
+    gid: '{{ www_data.gid }}'
+    state: present
+    system: no
+
+- name: Create www-data user
+  user:
+    name: www-data
+    uid: '{{ www_data.uid }}'
+    group: www-data
+    comment: 'Web Server User'
+    shell: /usr/sbin/nologin
+    system: no
+    create_home: no

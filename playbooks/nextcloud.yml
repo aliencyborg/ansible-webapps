@@ -1,0 +1,81 @@
+---
+- name: Deploy Nextcloud
+  hosts: webservers
+  become: true
+  vars_files:
+    - ../play_vars/nextcloud.yml
+
+  tasks:
+    - include_tasks: ../tasks/www-data.yml
+    - include_tasks: ../tasks/nfs-mount.yml
+
+    - name: Create Docker network for Nextcloud
+      community.docker.docker_network:
+        name: nextcloud-net
+
+    - name: Nextcloud MariaDB data volume
+      community.docker.docker_container:
+        name: nextcloud-db-data
+        image: mariadb:11
+        state: stopped
+        volumes:
+          - /var/lib/mysql
+
+    - name: Nextcloud MariaDB container
+      community.docker.docker_container:
+        name: nextcloud-db
+        image: mariadb:11
+        restart_policy: always
+        env:
+          MYSQL_ROOT_PASSWORD: '{{ nextcloud.db.root_password }}'
+          MYSQL_DATABASE: '{{ nextcloud.db.name }}'
+          MYSQL_USER: '{{ nextcloud.db.user }}'
+          MYSQL_PASSWORD: '{{ nextcloud.db.password }}'
+        volumes:
+          - nextcloud-db-data:/var/lib/mysql
+        networks:
+          - name: nextcloud-net
+
+    - name: Nextcloud Redis container
+      community.docker.docker_container:
+        name: nextcloud-redis
+        image: redis:alpine
+        restart_policy: always
+        networks:
+          - name: nextcloud-net
+
+    - name: Nextcloud app container
+      community.docker.docker_container:
+        name: nextcloud-app
+        image: nextcloud:apache
+        # user: '{{ www_data.uid }}:{{ www_data.gid }}'
+        restart_policy: always
+        env:
+          VIRTUAL_HOST: '{{ nextcloud_hosts }}'
+          LETSENCRYPT_HOST: '{{ nextcloud_hosts }}'
+          HSTS: 'off'
+          NEXTCLOUD_TRUSTED_DOMAINS: '{{ nextcloud_hosts }}'
+          MYSQL_HOST: nextcloud-db
+          MYSQL_DATABASE: '{{ nextcloud.db.name }}'
+          MYSQL_USER: '{{ nextcloud.db.user }}'
+          MYSQL_PASSWORD: '{{ nextcloud.db.password }}'
+          REDIS_HOST: nextcloud-redis
+        links:
+          - nextcloud-db:nextcloud-db
+          - nextcloud-redis:nextcloud-redis
+        volumes:
+          - /mnt/nextcloud_data:/var/www/html/data
+        networks:
+          - name: nextcloud-net
+
+    - name: Adjust permissions inside Nextcloud container
+      community.docker.docker_container_exec:
+        container: nextcloud-app
+        command: chown -R www-data:www-data /var/www/html/data
+
+  # handlers:
+  #   - name: Restart Nextcloud app container
+  #     community.docker.docker_container:
+  #       name: nextcloud-app
+  #       state: restarted
+  #     when: nfs_mounted.changed

@@ -1,0 +1,24 @@
+---
+- name: Ensure NFS mount point directory exists
+  file:
+    path: /mnt/nextcloud_data
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+
+- name: Mount NFS share from NAS
+  mount:
+    src: '{{ nas_ip }}:/mnt/DeadPool/nextcloud_data'
+    path: /mnt/nextcloud_data
+    fstype: nfs
+    opts: defaults
+    state: mounted
+
+- name: Ensure NFS mount persists across reboots
+  mount:
+    src: '{{ nas_ip }}:/mnt/DeadPool/nextcloud_data'
+    path: /mnt/nextcloud_data
+    fstype: nfs
+    opts: defaults
+    state: present
