@@ -1,13 +1,13 @@
 ---
 - hosts: east
   tasks:
-    - include: tasks/push-archives.yml
+    - ansible.builtin.include_tasks: ../tasks/push-archives.yml
       tags: [archive, push]
       vars:
         #TODO make this more dynamic
         localarchivedir: '/$HOME/ansible-fetch/beast/home/hank/archives/'
 
-    - include: tasks/restore-wordpress.yml
+    - ansible.builtin.include_tasks: ../tasks/restore-wordpress.yml
       tags: [tw, oceanic, restore]
       vars:
         backupdbcontainer: '{{ tw_oceanic.db.container }}'
@@ -19,4 +19,4 @@
         wpcontainer: '{{ tw_oceanic.wp.container }}'
 
   vars_files:
-    - play_vars/tw_oceanic.yml
+    - ../play_vars/tw_oceanic.yml

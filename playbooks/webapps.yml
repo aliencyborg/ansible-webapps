@@ -1,13 +1,13 @@
 ---
 - hosts: webservers
   tasks:
-    - ansible.builtin.include_tasks: tasks/tw-donnie.yml
-      tags: [tw, donnie]
-    - ansible.builtin.include_tasks: tasks/tw-oceanic.yml
+    # - ansible.builtin.include_tasks: ../tasks/tw-donnie.yml
+      # tags: [tw, donnie]
+    - ansible.builtin.include_tasks: ../tasks/tw-oceanic.yml
       tags: [tw, oceanic]
-    - ansible.builtin.include_tasks: tasks/tw-sammy.yml
+    - ansible.builtin.include_tasks: ../tasks/tw-sammy.yml
       tags: [tw, sammy]
   vars_files:
-    - play_vars/tw-donnie.yml
-    - play_vars/tw-oceanic.yml
-    - play_vars/tw-sammy.yml
+    # - ../play_vars/tw-donnie.yml
+    - ../play_vars/tw-oceanic.yml
+    - ../play_vars/tw-sammy.yml

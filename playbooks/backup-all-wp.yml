@@ -11,16 +11,16 @@
       debug:
         msg: 'timestamp: {{ timestamp }}'
 
-    - ansible.builtin.include_tasks: tasks/backup-wordpress.yml
-      tags: [tw, donnie, backup]
-      vars:
-        dbcontainer: '{{ tw_donnie.db.container }}'
-        dbname: '{{ tw_donnie.db.name }}'
-        dbpassword: '{{ tw_donnie.db.password }}'
-        dbuser: '{{ tw_donnie.db.user }}'
-        wpcontainer: '{{ tw_donnie.wp.container }}'
+    # - ansible.builtin.include_tasks: ../tasks/backup-wordpress.yml
+    #   tags: [tw, donnie, backup]
+    #   vars:
+    #     dbcontainer: '{{ tw_donnie.db.container }}'
+    #     dbname: '{{ tw_donnie.db.name }}'
+    #     dbpassword: '{{ tw_donnie.db.password }}'
+    #     dbuser: '{{ tw_donnie.db.user }}'
+    #     wpcontainer: '{{ tw_donnie.wp.container }}'
 
-    - ansible.builtin.include_tasks: tasks/backup-wordpress.yml
+    - ansible.builtin.include_tasks: ../tasks/backup-wordpress.yml
       tags: [tw, oceanic, backup]
       vars:
         dbcontainer: '{{ tw_oceanic.db.container }}'
@@ -29,7 +29,7 @@
         dbuser: '{{ tw_oceanic.db.user }}'
         wpcontainer: '{{ tw_oceanic.wp.container }}'
 
-    - ansible.builtin.include_tasks: tasks/backup-wordpress.yml
+    - ansible.builtin.include_tasks: ../tasks/backup-wordpress.yml
       tags: [tw, sammy, backup]
       vars:
         dbcontainer: '{{ tw_sammy.db.container }}'
@@ -38,13 +38,13 @@
         dbuser: '{{ tw_sammy.db.user }}'
         wpcontainer: '{{ tw_sammy.wp.container }}'
 
-    - ansible.builtin.include_tasks: tasks/archive-backups.yml
+    - ansible.builtin.include_tasks: ../tasks/archive-backups.yml
       tags: archive
 
-    - ansible.builtin.include_tasks: tasks/fetch-archives.yml
+    - ansible.builtin.include_tasks: ../tasks/fetch-archives.yml
       tags: archive
 
   vars_files:
-    - play_vars/tw-donnie.yml
-    - play_vars/tw-oceanic.yml
-    - play_vars/tw-sammy.yml
+    # - ../play_vars/tw-donnie.yml
+    - ../play_vars/tw-oceanic.yml
+    - ../play_vars/tw-sammy.yml
