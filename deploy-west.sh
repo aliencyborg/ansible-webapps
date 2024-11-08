@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ansible-playbook site.yml --limit west
+ansible-playbook site.yml

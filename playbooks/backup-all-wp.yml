@@ -1,5 +1,5 @@
 ---
-- hosts: west
+- hosts: webservers
   tasks:
     - name: register timestamp
       tags: [time]
@@ -10,15 +10,6 @@
       tags: [time]
       debug:
         msg: 'timestamp: {{ timestamp }}'
-
-    - include: tasks/backup-wordpress.yml
-      tags: [platypus, backup]
-      vars:
-        dbcontainer: '{{ platypus.db.container }}'
-        dbname: '{{ platypus.db.name }}'
-        dbpassword: '{{ platypus.db.password }}'
-        dbuser: '{{ platypus.db.user }}'
-        wpcontainer: '{{ platypus.wp.container }}'
 
     - include: tasks/backup-wordpress.yml
       tags: [tw, donnie, backup]
@@ -63,7 +54,6 @@
       tags: archive
 
   vars_files:
-    - play_vars/platypus.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml
     - play_vars/tw-oceanic.yml

@@ -1,14 +1,6 @@
 ---
-# - hosts: east
-#   tasks:
-#   vars_files:
-
-- hosts: west
+- hosts: webservers
   tasks:
-    - include: tasks/coolidge.yml
-      tags: coolidge
-    - include: tasks/platypus.yml
-      tags: platypus
     - include: tasks/tw-donnie.yml
       tags: [tw, donnie]
     - include: tasks/tw-jenna.yml
@@ -18,8 +10,6 @@
     - include: tasks/tw-sammy.yml
       tags: [tw, sammy]
   vars_files:
-    - play_vars/coolidge.yml
-    - play_vars/platypus.yml
     - play_vars/tw-donnie.yml
     - play_vars/tw-jenna.yml
     - play_vars/tw-oceanic.yml
