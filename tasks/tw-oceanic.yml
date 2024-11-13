@@ -40,6 +40,9 @@
       WORDPRESS_DB_NAME: "{{ tw_oceanic.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ tw_oceanic.db.password }}"
       WORDPRESS_DB_USER: "{{ tw_oceanic.db.user }}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'https://www.oceanictradewinds.com');
+        define('WP_SITEURL', 'https://www.oceanictradewinds.com');
     exposed_ports:
       - "80"
     links:

@@ -40,6 +40,9 @@
       WORDPRESS_DB_NAME: "{{ tw_sammy.db.name }}"
       WORDPRESS_DB_PASSWORD: "{{ tw_sammy.db.password }}"
       WORDPRESS_DB_USER: "{{ tw_sammy.db.user }}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'https://www.samanthajlive.com');
+        define('WP_SITEURL', 'https://www.samanthajlive.com');
     exposed_ports:
       - "80"
     links:
@@ -65,3 +68,9 @@
 
 - name: restart wordpress
   shell: docker restart {{ tw_sammy.wp.container }}
+
+# - name: enable apache mod_rewrite
+#   shell: docker exec {{ tw_sammy.wp.container }} a2enmod rewrite
+
+# - name: restart apache in container
+#   shell: docker exec {{ tw_sammy.wp.container }} service apache2 restart
