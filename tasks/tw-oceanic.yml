@@ -66,16 +66,16 @@
     path: ~/app-files
     state: directory
 
-- name: copy htaccess file to remote
+- name: copy uploads.ini file to remote
   copy:
-    src: ../files/htaccess
-    dest: ~/app-files/htaccess
+    src: ../files/uploads.ini
+    dest: ~/app-files/uploads.ini
 
-- name: copy htaccess into wordpress container
-  shell: docker cp ~/app-files/htaccess {{ tw_oceanic.wp.container }}:/var/www/html/.htaccess
+- name: copy uploads.ini into wordpress container
+  shell: docker cp ~/app-files/uploads.ini {{ tw_oceanic.wp.container }}:/usr/local/etc/php/conf.d/uploads.ini
 
-- name: set ownership of htaccess
-  shell: docker exec {{ tw_oceanic.wp.container }} chown www-data:www-data /var/www/html/.htaccess
+- name: set ownership of uploads.ini
+  shell: docker exec {{ tw_oceanic.wp.container }} chown www-data:www-data /usr/local/etc/php/conf.d/uploads.ini
 
 - name: restart wordpress
   shell: docker restart {{ tw_oceanic.wp.container }}
