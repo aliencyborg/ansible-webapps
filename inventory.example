@@ -10,3 +10,5 @@ box2
 box1
 box3
 
+[local]
+localhost ansible_connection=local

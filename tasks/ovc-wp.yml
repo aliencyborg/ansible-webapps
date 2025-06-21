@@ -34,6 +34,8 @@
     name: ovc-wp-web
     restart: yes
     restart_policy: always
+    pull: yes
+    pull_timeout: 300
     env:
       HSTS: "off"
       LETSENCRYPT_HOST: "{{ ovc_wp_hosts }}"
@@ -50,6 +52,8 @@
       - "ovc-wp-db:mysql"
     volumes:
       - ovc-wp-content:/var/www/html
+  retries: 3
+  delay: 10
 
 - name: ovc-wp sftp
   docker_container:
