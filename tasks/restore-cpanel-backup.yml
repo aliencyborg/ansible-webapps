@@ -1,0 +1,99 @@
+---
+# Restore cPanel backup to WordPress Docker containers
+# Expected variables:
+# - cpanel_backup_path: path to extracted cPanel backup directory
+# - wpcontainer: WordPress container name
+# - dbcontainer: Database container name
+# - dbuser: Database username
+# - dbpassword: Database password
+# - dbname: Database name
+
+- name: ensure backup staging directory exists
+  file:
+    path: ~/cpanel-restore-staging
+    state: directory
+
+- name: copy cPanel backup to staging area
+  copy:
+    src: "{{ cpanel_backup_path }}/"
+    dest: ~/cpanel-restore-staging/
+    remote_src: no
+
+- name: check if public_html exists in homedir
+  stat:
+    path: ~/cpanel-restore-staging/homedir/public_html
+  register: public_html_check
+
+- name: debug WordPress directory check
+  debug:
+    msg: "WordPress files found in public_html: {{ public_html_check.stat.exists }}"
+
+- name: stop WordPress container for safe restoration
+  docker_container:
+    name: "{{ wpcontainer }}"
+    state: stopped
+
+- name: clear existing WordPress content
+  shell: docker run --rm -v {{ wpcontainer }}:/var/www/html alpine:latest sh -c "rm -rf /var/www/html/* /var/www/html/.*" || true
+
+- name: copy WordPress files from public_html to container
+  shell: docker cp ~/cpanel-restore-staging/homedir/public_html/. {{ wpcontainer }}:/var/www/html/
+  when: public_html_check.stat.exists
+
+- name: set proper ownership of WordPress files
+  shell: docker run --rm -v {{ wpcontainer }}:/var/www/html alpine:latest sh -c "chown -R 33:33 /var/www/html"
+
+- name: start WordPress container
+  docker_container:
+    name: "{{ wpcontainer }}"
+    state: started
+
+- name: check database restoration options
+  stat:
+    path: "{{ item }}"
+  register: db_files
+  loop:
+    - ~/cpanel-restore-staging/mysql.sql
+    - ~/cpanel-restore-staging/mysql/overvie2_overview1.sql
+    - ~/cpanel-restore-staging/mysql/overvie2_wor1.sql
+
+- name: debug found database files
+  debug:
+    msg: "Database file {{ item.item }} exists: {{ item.stat.exists }}"
+  loop: "{{ db_files.results }}"
+
+- name: restore from main mysql.sql if it exists
+  shell: cat ~/cpanel-restore-staging/mysql.sql | docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
+  when: db_files.results[0].stat.exists
+  ignore_errors: yes
+
+- name: restore from specific database file if main doesn't exist
+  shell: cat ~/cpanel-restore-staging/mysql/overvie2_overview1.sql | docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
+  when: not db_files.results[0].stat.exists and db_files.results[1].stat.exists
+  ignore_errors: yes
+
+- name: update WordPress URLs in database (optional)
+  shell: |
+    docker exec {{ wpcontainer }} wp search-replace "{{ old_site_url | default('http://overvie2.siteground.biz') }}" "{{ new_site_url }}" --allow-root
+  when: old_site_url is defined and new_site_url is defined
+  ignore_errors: yes
+
+- name: flush WordPress rewrite rules
+  shell: docker exec {{ wpcontainer }} wp rewrite flush --allow-root
+  ignore_errors: yes
+
+- name: flush WordPress cache
+  shell: docker exec {{ wpcontainer }} wp cache flush --allow-root
+  ignore_errors: yes
+
+- name: update WordPress file permissions
+  shell: |
+    docker exec {{ wpcontainer }} find /var/www/html -type f -exec chmod 644 {} \;
+    docker exec {{ wpcontainer }} find /var/www/html -type d -exec chmod 755 {} \;
+    docker exec {{ wpcontainer }} chown -R www-data:www-data /var/www/html
+  ignore_errors: yes
+
+- name: clean up staging directory
+  file:
+    path: ~/cpanel-restore-staging
+    state: absent 

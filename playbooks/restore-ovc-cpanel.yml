@@ -1,0 +1,25 @@
+---
+- hosts: webservers
+  vars:
+    # Path to your extracted cPanel backup directory
+    cpanel_backup_path: "~/Downloads/backup-6.13.2025_07-04-38_overvie2"
+    
+    # Container names from your ovc-wp.yml task
+    wpcontainer: "{{ ovc_wp.wp.container }}"
+    dbcontainer: "{{ ovc_wp.db.container }}"
+    
+    # Database credentials - these should match your play_vars
+    dbuser: "{{ ovc_wp.db.user }}"
+    dbpassword: "{{ ovc_wp.db.password }}"
+    dbname: "{{ ovc_wp.db.name }}"
+    
+    # URL replacement (optional) - update these to match your site
+    old_site_url: "http://overvie2.siteground.biz"  # Your old site URL from backup
+    new_site_url: "https://ovc.aliencyb.org"        # Your new site URL
+
+  tasks:
+    - name: include cPanel backup restore task
+      include_tasks: ../tasks/restore-cpanel-backup.yml
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml  # Make sure this file exists with your ovc_wp variables 
