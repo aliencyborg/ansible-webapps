@@ -7,7 +7,10 @@
       tags: [tw, oceanic]
     - ansible.builtin.include_tasks: ../tasks/tw-sammy.yml
       tags: [tw, sammy]
+    - ansible.builtin.include_tasks: ../tasks/ovc-wp.yml
+      tags: [ovc, wp]
   vars_files:
     # - ../play_vars/tw-donnie.yml
     - ../play_vars/tw-oceanic.yml
     - ../play_vars/tw-sammy.yml
+    - ../play_vars/ovc_wp.yml

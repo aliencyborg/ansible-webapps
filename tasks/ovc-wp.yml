@@ -1,0 +1,82 @@
+---
+- name: ovc-wp wordpress content container
+  docker_container:
+    image: wordpress:6.8
+    name: ovc-wp-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: ovc-wp db data container
+  docker_container:
+    image: mariadb:lts
+    name: ovc-wp-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: ovc-wp database
+  docker_container:
+    image: mariadb:lts
+    name: ovc-wp-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ ovc_wp.db.name }}"
+      MYSQL_PASSWORD: "{{ ovc_wp.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ ovc_wp.db.user }}"
+    volumes:
+      - ovc-wp-db-data:/var/lib/mysql
+
+- name: ovc-wp wordpress
+  docker_container:
+    image: wordpress:6.8
+    name: ovc-wp-web
+    restart: yes
+    restart_policy: always
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ ovc_wp_hosts }}"
+      VIRTUAL_HOST: "{{ ovc_wp_hosts }}"
+      WORDPRESS_DB_NAME: "{{ ovc_wp.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ ovc_wp.db.password }}"
+      WORDPRESS_DB_USER: "{{ ovc_wp.db.user }}"
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'https://ovc.aliencyb.org');
+        define('WP_SITEURL', 'https://ovc.aliencyb.org');
+    exposed_ports:
+      - "80"
+    links:
+      - "ovc-wp-db:mysql"
+    volumes:
+      - ovc-wp-content:/var/www/html
+
+- name: ovc-wp sftp
+  docker_container:
+    command: "{{ ovc_wp.sftp.user }}:{{ ovc_wp.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: ovc-wp-ftp
+    restart_policy: always
+    ports:
+      - "{{ ovc_wp_sftp_port }}:22"
+    volumes:
+      - ovc-wp-content:/home/alien/upload
+
+- name: ensure app-files directory exists
+  file:
+    path: ~/app-files
+    state: directory
+
+- name: copy uploads.ini file to remote
+  copy:
+    src: ../files/uploads.ini
+    dest: ~/app-files/uploads.ini
+
+- name: copy uploads.ini into wordpress container
+  shell: docker cp ~/app-files/uploads.ini {{ ovc_wp.wp.container }}:/usr/local/etc/php/conf.d/uploads.ini
+
+- name: set ownership of uploads.ini
+  shell: docker exec {{ ovc_wp.wp.container }} chown www-data:www-data /usr/local/etc/php/conf.d/uploads.ini
+
+- name: restart wordpress
+  shell: docker restart {{ ovc_wp.wp.container }}
