@@ -9,7 +9,7 @@
 
 - name: tw-donnie db data container
   docker_container:
-    image: mariadb:10.5
+    image: mariadb:10
     name: tw-donnie-db-data-2
     state: stopped
     volumes:
@@ -17,7 +17,7 @@
 
 - name: tw-donnie database
   docker_container:
-    image: mariadb:10.5
+    image: mariadb:10
     name: tw-donnie-db
     recreate: yes
     restart_policy: always

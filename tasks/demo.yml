@@ -9,7 +9,7 @@
 
 - name: demo db data container
   docker_container:
-    image: mariadb:10.5
+    image: mariadb:10
     name: demo-db-data
     state: stopped
     volumes:
@@ -17,7 +17,7 @@
 
 - name: demo database
   docker_container:
-    image: mariadb:10.5
+    image: mariadb:10
     name: demo-db
     recreate: yes
     restart_policy: always
