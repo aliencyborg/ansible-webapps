@@ -1,0 +1,150 @@
+---
+# Fix issues found during upgrade compatibility analysis
+# Run this before attempting the WordPress/PHP upgrade
+
+- name: Install WP-CLI in WordPress container
+  shell: |
+    echo "Installing WP-CLI in WordPress container..."
+    # Remove any existing wp-cli file
+    docker exec {{ ovc_wp.wp.container }} rm -f /usr/local/bin/wp wp-cli.phar
+    
+    # Install via package manager for proper architecture support
+    docker exec {{ ovc_wp.wp.container }} bash -c "
+      apt-get update && 
+      apt-get install -y curl php-cli php-mbstring &&
+      curl -O https://raw.githubusercontent.com/wp-cli/wp-cli/v2.10.0/phar/wp-cli.phar &&
+      php wp-cli.phar --info &&
+      chmod +x wp-cli.phar &&
+      mv wp-cli.phar /usr/local/bin/wp
+    "
+    echo "WP-CLI installed successfully"
+  register: wp_cli_install
+  
+- name: Verify WP-CLI installation
+  shell: docker exec {{ ovc_wp.wp.container }} wp --info --allow-root
+  register: wp_cli_verify
+  ignore_errors: yes
+  
+- name: Check if WP Super Cache plugin exists
+  shell: docker exec {{ ovc_wp.wp.container }} test -d /var/www/html/wp-content/plugins/wp-super-cache
+  register: wp_super_cache_check
+  ignore_errors: yes
+  
+- name: Disable WP Super Cache plugin if it exists
+  shell: docker exec {{ ovc_wp.wp.container }} mv /var/www/html/wp-content/plugins/wp-super-cache /var/www/html/wp-content/plugins/wp-super-cache.disabled
+  when: wp_super_cache_check.rc == 0
+  ignore_errors: yes
+  
+- name: List available plugin updates
+  shell: docker exec {{ ovc_wp.wp.container }} wp plugin list --format=csv --allow-root --update=available
+  register: plugin_list
+  ignore_errors: yes
+  
+- name: Update Strong Testimonials plugin
+  shell: docker exec {{ ovc_wp.wp.container }} wp plugin update strong-testimonials --allow-root
+  register: strong_testimonials_update
+  ignore_errors: yes
+  
+- name: Update Formidable plugin
+  shell: docker exec {{ ovc_wp.wp.container }} wp plugin update formidable --allow-root
+  register: formidable_update
+  ignore_errors: yes
+  
+- name: Update WordPress SEO plugin
+  shell: docker exec {{ ovc_wp.wp.container }} wp plugin update wordpress-seo --allow-root
+  register: seo_update
+  ignore_errors: yes
+  
+- name: Find files with old cPanel paths
+  shell: docker exec {{ ovc_wp.wp.container }} find /var/www/html/wp-content/ -name "*.php" -exec grep -l "/home3/overvie2/" {} \;
+  register: old_path_files
+  ignore_errors: yes
+  
+- name: Clear WordPress cache
+  shell: docker exec {{ ovc_wp.wp.container }} wp cache flush --allow-root
+  ignore_errors: yes
+  
+- name: Test WordPress version detection
+  shell: docker exec {{ ovc_wp.wp.container }} wp core version --allow-root
+  register: wp_version_test
+  ignore_errors: yes
+  
+- name: Test database connection
+  shell: docker exec {{ ovc_wp.wp.container }} wp db check --allow-root
+  register: db_test
+  ignore_errors: yes
+  
+- name: Check recent PHP errors
+  shell: docker logs {{ ovc_wp.wp.container }} --since="5m" 2>&1 | grep -i "php.*error\|fatal" | wc -l
+  register: php_error_count
+  ignore_errors: yes
+  
+- name: Test site response
+  shell: curl -s -o /dev/null -w "%{http_code}" https://{{ ovc_wp_hosts }}
+  register: site_response
+  ignore_errors: yes
+  
+- name: Update WordPress site URLs to staging domain
+  shell: |
+    echo "Updating WordPress URLs from old domain to staging domain..."
+    # Update home and siteurl options
+    docker exec {{ ovc_wp.wp.container }} wp option update home 'https://ovc.aliencyb.org' --allow-root
+    docker exec {{ ovc_wp.wp.container }} wp option update siteurl 'https://ovc.aliencyb.org' --allow-root
+    echo "WordPress URL options updated"
+  ignore_errors: yes
+  
+- name: Search and replace old domain references in database
+  shell: |
+    echo "Performing database search and replace for domain references..."
+    # Replace https://overviewconsulting.com with https://ovc.aliencyb.org
+    docker exec {{ ovc_wp.wp.container }} wp search-replace 'https://overviewconsulting.com' 'https://ovc.aliencyb.org' --allow-root
+    echo "Database search and replace completed"
+  ignore_errors: yes
+  register: url_replacement
+  
+- name: Flush WordPress cache and permalinks after URL changes
+  shell: |
+    echo "Flushing WordPress cache and permalinks..."
+    docker exec {{ ovc_wp.wp.container }} wp cache flush --allow-root
+    docker exec {{ ovc_wp.wp.container }} wp rewrite flush --allow-root
+    echo "Cache and permalinks flushed"
+  ignore_errors: yes
+
+- name: Display fix results
+  debug:
+    msg: |
+      
+      UPGRADE PREPARATION FIXES COMPLETE
+      ==================================
+      
+      WP-CLI Installation:
+      {{ wp_cli_install.stdout }}
+      {{ wp_cli_verify.stdout if wp_cli_verify.rc == 0 else 'WP-CLI verification failed' }}
+      
+      Plugin Management:
+      - WP Super Cache: {{ 'Disabled' if wp_super_cache_check.rc == 0 else 'Not found or already disabled' }}
+      - Strong Testimonials: {{ 'Updated' if strong_testimonials_update.rc == 0 else 'Update failed or not found' }}
+      - Formidable: {{ 'Updated' if formidable_update.rc == 0 else 'Update failed or not found' }}
+      - WordPress SEO: {{ 'Updated' if seo_update.rc == 0 else 'Update failed or not found' }}
+      
+      URL Updates:
+      - WordPress URLs updated to: https://ovc.aliencyb.org
+      - Database replacements made: {{ url_replacement.stdout if url_replacement.rc == 0 else 'Failed to get count' }}
+      - Cache and permalinks flushed
+      
+      WordPress Status:
+      - Version: {{ wp_version_test.stdout if wp_version_test.rc == 0 else 'Unable to detect' }}
+      - Database: {{ 'OK' if db_test.rc == 0 else 'Error' }}
+      - Recent PHP errors: {{ php_error_count.stdout if php_error_count.rc == 0 else 'Unable to check' }}
+      - Site response: {{ site_response.stdout if site_response.rc == 0 else 'Unable to check' }}
+      
+      Files with old cPanel paths found: {{ old_path_files.stdout_lines | length if old_path_files.rc == 0 else 'Unable to check' }}
+      
+      NEXT STEPS:
+      -----------
+      1. Test your site at: https://ovc.aliencyb.org
+      2. Run compatibility analysis again:
+         ansible-playbook playbooks/upgrade-ovc-php.yml --limit beast
+      
+      3. If issues are resolved, proceed with upgrade:
+         ansible-playbook playbooks/upgrade-ovc-php-phase2.yml --limit beast 

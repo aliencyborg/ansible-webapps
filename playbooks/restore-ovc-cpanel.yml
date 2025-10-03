@@ -1,8 +1,11 @@
 ---
 - hosts: webservers
   vars:
-    # Path to your extracted cPanel backup directory
-    cpanel_backup_path: "~/Downloads/backup-6.13.2025_07-04-38_overvie2"
+    # Path to your cPanel backup tar file
+    cpanel_backup_tar_path: "/Users/bennie/code/src/github.com/aliencyborg/ansible-webapps/backups/backup-6.13.2025_07-04-38_overvie2.tar"
+ 
+    # Set to true to force re-download even if backup exists on remote
+    force_backup_redownload: false
     
     # Container names from your ovc-wp.yml task
     wpcontainer: "{{ ovc_wp.wp.container }}"

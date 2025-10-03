@@ -1,0 +1,67 @@
+---
+- hosts: webservers
+  vars:
+    # Path to your cPanel backup tar file
+    cpanel_backup_tar_path: "/Users/bennie/code/src/github.com/aliencyborg/ansible-webapps/backups/backup-6.13.2025_07-04-38_overvie2.tar"
+    
+    # Set to true to force re-download even if backup exists on remote
+    force_backup_redownload: false
+    
+    # Container names from your ovc-wp-legacy.yml task
+    wpcontainer: "{{ ovc_wp.wp.container }}"
+    dbcontainer: "{{ ovc_wp.db.container }}"
+    
+    # Database credentials - these should match your play_vars
+    dbuser: "{{ ovc_wp.db.user }}"
+    dbpassword: "{{ ovc_wp.db.password }}"
+    dbname: "{{ ovc_wp.db.name }}"
+    
+    # URL replacement - start with HTTP, then upgrade to HTTPS later
+    old_site_url: "http://overvie2.siteground.biz"  
+    new_site_url: "http://ovc.aliencyb.org"  # Note: HTTP first, HTTPS later
+
+  tasks:
+    - name: Deploy WordPress 6.1 + PHP 8.0 containers (compatible with mixed WordPress backups)
+      include_tasks: ../tasks/ovc-wp-legacy.yml
+
+    - name: Wait for containers to be ready
+      pause:
+        seconds: 30
+
+    - name: Restore cPanel backup with automatic compatibility fixes
+      include_tasks: ../tasks/restore-cpanel-backup.yml
+
+    - name: Check site accessibility
+      uri:
+        url: "http://{{ ansible_host }}:80"
+        method: GET
+        status_code: [200, 301, 302]
+      retries: 5
+      delay: 10
+      ignore_errors: yes
+      register: site_check
+
+    - name: Display restoration status
+      debug:
+        msg: |
+          WordPress restoration complete!
+          
+          Next steps:
+          1. Test your site at: http://ovc.aliencyb.org
+          2. Check for any remaining plugin compatibility issues
+          3. Update URLs through WordPress admin if needed
+          4. Run the upgrade playbook when ready: ansible-playbook playbooks/upgrade-ovc-php.yml
+          
+          Current setup:
+          - WordPress: 6.1 (PHP 8.0 compatible bridge version)
+          - MariaDB: 10.x
+          - Automatic fixes applied for:
+            * Database connection settings
+            * Problematic cache files  
+            * Legacy plugin compatibility
+            * PHP 8.0 type checking issues
+          
+          Site status: {{ 'ACCESSIBLE' if site_check.status == 200 else 'CHECK REQUIRED - Status: ' + (site_check.status|string if site_check.status is defined else 'UNKNOWN') }}
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml 

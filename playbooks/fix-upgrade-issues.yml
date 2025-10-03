@@ -1,0 +1,8 @@
+---
+- hosts: webservers
+  tasks:
+    - name: Fix upgrade compatibility issues
+      include_tasks: ../tasks/fix-upgrade-issues.yml
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml 

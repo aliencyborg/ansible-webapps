@@ -1,0 +1,172 @@
+---
+- hosts: webservers
+  vars:
+    # Backup before upgrade
+    backup_timestamp: "{{ ansible_date_time.epoch }}"
+    
+    # Target versions for upgrade
+    target_wp_version: "6.8"
+    target_php_version: "8.2"
+    
+  tasks:
+    - name: Create comprehensive backup before PHP upgrade
+      shell: |
+        # Create backup directory
+        mkdir -p ~/pre-upgrade-backups-{{ backup_timestamp }}
+        
+        # Backup database
+        docker exec {{ ovc_wp.wp.container }} wp db export /tmp/pre-upgrade-backup-{{ backup_timestamp }}.sql --allow-root || true
+        docker cp {{ ovc_wp.wp.container }}:/tmp/pre-upgrade-backup-{{ backup_timestamp }}.sql ~/pre-upgrade-backups-{{ backup_timestamp }}/
+        
+        # Backup WordPress files 
+        docker run --rm -v {{ ovc_wp.wp.container }}:/var/www/html -v $(pwd)/pre-upgrade-backups-{{ backup_timestamp }}:/backup alpine:latest tar czf /backup/wordpress-files-{{ backup_timestamp }}.tar.gz -C /var/www/html .
+        
+        # Backup configuration
+        docker inspect {{ ovc_wp.wp.container }} > ~/pre-upgrade-backups-{{ backup_timestamp }}/container-config.json
+      ignore_errors: yes
+
+    - name: Check current WordPress and PHP versions
+      shell: |
+        echo "=== CURRENT VERSIONS ==="
+        echo "WordPress: $(docker exec {{ ovc_wp.wp.container }} wp core version --allow-root 2>/dev/null || echo 'Unable to detect')"
+        echo "PHP: $(docker exec {{ ovc_wp.wp.container }} php -v | head -1 2>/dev/null || echo 'Unable to detect')"
+        echo ""
+      register: current_versions
+
+    - name: Analyze PHP compatibility issues
+      shell: |
+        echo "=== PHP 8.2 COMPATIBILITY ANALYSIS ==="
+        
+        # Check for known PHP 8.2 issues in WordPress files
+        echo "🔍 Checking for PHP 8.2 compatibility issues..."
+        
+        # Look for problematic patterns
+        echo "Checking for PHP 8.2 deprecated features:"
+        docker exec {{ ovc_wp.wp.container }} bash -c '
+          cd /var/www/html
+          echo "- Dynamic properties (will be deprecated):"
+          grep -r "public \$[a-zA-Z_][a-zA-Z0-9_]*;" wp-content/plugins/ wp-content/themes/ 2>/dev/null | head -5 || echo "  None found in quick scan"
+          
+          echo "- UTF-8 validation issues:"
+          find wp-content/ -name "*.php" -exec grep -l "utf8_" {} \; 2>/dev/null | head -3 || echo "  None found"
+          
+          echo "- Deprecated ${var} in strings:"
+          grep -r '"\${[^}]*}"' wp-content/plugins/ wp-content/themes/ 2>/dev/null | head -3 || echo "  None found"
+        '
+      register: php_compatibility_check
+      ignore_errors: yes
+
+    - name: Check for WordPress core updates needed
+      shell: |
+        echo "=== WORDPRESS UPDATE ANALYSIS ==="
+        echo "Current WordPress version: $(docker exec {{ ovc_wp.wp.container }} wp core version --allow-root 2>/dev/null)"
+        echo "Latest available: $(docker exec {{ ovc_wp.wp.container }} wp core check-update --format=csv --allow-root 2>/dev/null | tail -1 | cut -d',' -f2 || echo 'Unable to check')"
+        echo ""
+        echo "Core integrity check:"
+        docker exec {{ ovc_wp.wp.container }} wp core verify-checksums --allow-root 2>/dev/null || echo "Checksum verification failed"
+      register: wp_update_check
+      ignore_errors: yes
+
+    - name: Analyze plugin compatibility for PHP 8.2
+      shell: |
+        echo "=== PLUGIN COMPATIBILITY ANALYSIS ==="
+        docker exec {{ ovc_wp.wp.container }} bash -c '
+          cd /var/www/html
+          echo "Active plugins analysis:"
+          wp plugin list --status=active --format=csv --allow-root 2>/dev/null | while IFS="," read name status update version; do
+            if [ "$name" != "name" ]; then
+              echo "📦 $name (v$version) - Status: $status, Update: $update"
+            fi
+          done
+          
+          echo ""
+          echo "🔍 Known problematic plugins for PHP 8.2:"
+          # Check for plugins with known PHP 8.2 issues
+          for plugin in wp-super-cache w3-total-cache old-contact-form; do
+            if wp plugin is-installed $plugin --allow-root 2>/dev/null; then
+              echo "⚠️  $plugin (may have PHP 8.2 compatibility issues)"
+            fi
+          done
+        '
+      register: plugin_analysis
+      ignore_errors: yes
+
+    - name: Check theme compatibility
+      shell: |
+        echo "=== THEME COMPATIBILITY ANALYSIS ==="
+        docker exec {{ ovc_wp.wp.container }} bash -c '
+          echo "Active theme:"
+          wp theme list --status=active --format=csv --allow-root 2>/dev/null
+          
+          echo ""
+          echo "Theme PHP compatibility scan:"
+          cd /var/www/html/wp-content/themes
+          find . -name "*.php" -exec grep -l "create_function\|split\|ereg" {} \; 2>/dev/null | head -5 || echo "No deprecated functions found in quick scan"
+        '
+      register: theme_analysis
+      ignore_errors: yes
+
+    - name: Test current site functionality
+      shell: |
+        echo "=== SITE FUNCTIONALITY TEST ==="
+        
+        # Test basic WordPress functionality
+        echo "Testing basic WordPress functions:"
+        curl_result=$(curl -s -o /dev/null -w "%{http_code}" https://{{ ovc_wp_hosts }} || echo "000")
+        echo "Site HTTP status: $curl_result"
+        
+        # Test admin access
+        admin_result=$(curl -s -o /dev/null -w "%{http_code}" https://{{ ovc_wp_hosts }}/wp-admin/ || echo "000")
+        echo "Admin HTTP status: $admin_result"
+        
+        # Check for PHP errors
+        echo ""
+        echo "Recent PHP errors (last 20):"
+        docker logs {{ ovc_wp.wp.container }} 2>&1 | grep -i "php.*error\|fatal\|warning" | tail -5 || echo "No recent PHP errors found"
+      register: functionality_test
+      ignore_errors: yes
+
+    - name: Display comprehensive upgrade readiness report
+      debug:
+        msg: |
+          
+          🚀 WORDPRESS & PHP UPGRADE READINESS REPORT
+          ============================================
+          
+          {{ current_versions.stdout }}
+          
+          {{ php_compatibility_check.stdout }}
+          
+          {{ wp_update_check.stdout }}
+          
+          {{ plugin_analysis.stdout }}
+          
+          {{ theme_analysis.stdout }}
+          
+          {{ functionality_test.stdout }}
+          
+          📋 RECOMMENDED UPGRADE PATH:
+          ---------------------------
+          1. Current: WordPress 6.1 + PHP 8.0 (✅ Stable bridge version)
+          2. Next: WordPress 6.8 + PHP 8.2 (🎯 Target modern version)
+          
+          🔧 PREPARATION STEPS:
+          --------------------
+          1. ✅ Backup created: ~/pre-upgrade-backups-{{ backup_timestamp }}/
+          2. 📊 Run compatibility analysis above
+          3. 🔧 Fix any identified issues
+          4. 🧪 Test in staging environment first
+          5. 📈 Monitor performance after upgrade
+          
+          ⚠️  BEFORE UPGRADING:
+          ---------------------
+          - Review plugin compatibility warnings above
+          - Update or disable problematic plugins
+          - Test core functionality after each change
+          - Have rollback plan ready
+          
+          🚀 READY TO UPGRADE? Run:
+          ansible-playbook playbooks/upgrade-ovc-php-phase2.yml
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml 

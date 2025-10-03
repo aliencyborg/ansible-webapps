@@ -1,0 +1,69 @@
+---
+# WordPress 6.1 + PHP 8.0 deployment for cPanel backup compatibility
+# This "bridge" version handles both legacy and modern WordPress backups:
+# - WordPress 6.1: Compatible with 4.x through 6.x core files
+# - PHP 8.0: Supports modern syntax with better legacy plugin tolerance
+# - Automatic fixes: Database settings, cache files, and plugin compatibility
+
+- name: ovc-wp-legacy content container
+  docker_container:
+    image: wordpress:6.1
+    name: ovc-wp-content
+    state: stopped
+    volumes:
+      - /var/www/html
+
+- name: ovc-wp db data container
+  docker_container:
+    image: mariadb:10  # Compatible with older WordPress
+    name: ovc-wp-db-data
+    state: stopped
+    volumes:
+      - /var/lib/mysql
+
+- name: ovc-wp legacy database
+  docker_container:
+    image: mariadb:10
+    name: ovc-wp-db
+    restart_policy: always
+    env:
+      MYSQL_DATABASE: "{{ ovc_wp.db.name }}"
+      MYSQL_PASSWORD: "{{ ovc_wp.db.password }}"
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_USER: "{{ ovc_wp.db.user }}"
+    volumes:
+      - ovc-wp-db-data:/var/lib/mysql
+
+- name: ovc-wp legacy wordpress
+  docker_container:
+    image: wordpress:6.1
+    name: ovc-wp-web
+    restart: yes
+    restart_policy: always
+    pull: yes
+    env:
+      HSTS: "off"
+      LETSENCRYPT_HOST: "{{ ovc_wp_hosts }}"
+      VIRTUAL_HOST: "{{ ovc_wp_hosts }}"
+      WORDPRESS_DB_NAME: "{{ ovc_wp.db.name }}"
+      WORDPRESS_DB_PASSWORD: "{{ ovc_wp.db.password }}"
+      WORDPRESS_DB_USER: "{{ ovc_wp.db.user }}"
+    exposed_ports:
+      - "80"
+    links:
+      - "ovc-wp-db:mysql"
+    volumes:
+      - ovc-wp-content:/var/www/html
+  retries: 8
+  delay: 10
+
+- name: ovc-wp sftp
+  docker_container:
+    command: "{{ ovc_wp.sftp.user }}:{{ ovc_wp.sftp.password }}:1001"
+    image: atmoz/sftp:latest
+    name: ovc-wp-ftp
+    restart_policy: always
+    ports:
+      - "{{ ovc_wp_sftp_port }}:22"
+    volumes:
+      - ovc-wp-content:/home/alien/upload 

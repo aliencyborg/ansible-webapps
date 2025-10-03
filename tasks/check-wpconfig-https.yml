@@ -1,0 +1,18 @@
+---
+# Check existing wp-config.php for HTTPS configuration
+
+- name: Check current wp-config.php for existing HTTPS settings
+  shell: |
+    echo "📋 Checking existing wp-config.php configuration..."
+    echo ""
+    echo "=== Checking for existing HTTPS configuration ==="
+    docker exec {{ wpcontainer }} grep -E "FORCE_SSL|WP_HOME|WP_SITEURL|HTTP_X_FORWARDED_PROTO|HTTPS" /var/www/html/wp-config.php || echo "No existing HTTPS configuration found"
+    echo ""
+    echo "=== Current site URL settings ==="
+    docker exec {{ wpcontainer }} wp option get home --allow-root || echo "Unable to get home URL"
+    docker exec {{ wpcontainer }} wp option get siteurl --allow-root || echo "Unable to get siteurl"
+  register: wpconfig_check
+  
+- name: Display current configuration
+  debug:
+    msg: "{{ wpconfig_check.stdout }}" 

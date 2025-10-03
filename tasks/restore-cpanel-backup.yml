@@ -1,7 +1,7 @@
 ---
 # Restore cPanel backup to WordPress Docker containers
 # Expected variables:
-# - cpanel_backup_path: path to extracted cPanel backup directory
+# - cpanel_backup_tar_path: path to cPanel backup tar file
 # - wpcontainer: WordPress container name
 # - dbcontainer: Database container name
 # - dbuser: Database username
@@ -13,15 +13,45 @@
     path: ~/cpanel-restore-staging
     state: directory
 
-- name: copy cPanel backup to staging area
+- name: check if backup tar already exists on remote
+  stat:
+    path: ~/cpanel-restore-staging/backup.tar
+  register: remote_backup_check
+
+- name: get local backup file info for comparison
+  stat:
+    path: "{{ cpanel_backup_tar_path }}"
+  delegate_to: localhost
+  register: local_backup_info
+
+- name: copy cPanel backup tar file to remote server (only if needed)
   copy:
-    src: "{{ cpanel_backup_path }}/"
-    dest: ~/cpanel-restore-staging/
+    src: "{{ cpanel_backup_tar_path }}"
+    dest: ~/cpanel-restore-staging/backup.tar
     remote_src: no
+  when: force_backup_redownload | default(false) or
+        not remote_backup_check.stat.exists or 
+        remote_backup_check.stat.size != local_backup_info.stat.size
+  register: backup_copied
+
+- name: display transfer status
+  debug:
+    msg: |
+      {% if backup_copied.changed %}
+      ✅ Backup file transferred ({{ (local_backup_info.stat.size / 1024 / 1024 / 1024) | round(2) }} GB)
+      {% else %}
+      ⚡ Using existing backup file on remote server ({{ (remote_backup_check.stat.size / 1024 / 1024 / 1024) | round(2) }} GB)
+      {% endif %}
+
+- name: extract cPanel backup on remote server
+  unarchive:
+    src: ~/cpanel-restore-staging/backup.tar
+    dest: ~/cpanel-restore-staging/
+    remote_src: yes
 
 - name: check if public_html exists in homedir
   stat:
-    path: ~/cpanel-restore-staging/homedir/public_html
+    path: ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/homedir/public_html
   register: public_html_check
 
 - name: debug WordPress directory check
@@ -37,7 +67,7 @@
   shell: docker run --rm -v {{ wpcontainer }}:/var/www/html alpine:latest sh -c "rm -rf /var/www/html/* /var/www/html/.*" || true
 
 - name: copy WordPress files from public_html to container
-  shell: docker cp ~/cpanel-restore-staging/homedir/public_html/. {{ wpcontainer }}:/var/www/html/
+  shell: docker cp ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/homedir/public_html/. {{ wpcontainer }}:/var/www/html/
   when: public_html_check.stat.exists
 
 - name: set proper ownership of WordPress files
@@ -53,9 +83,9 @@
     path: "{{ item }}"
   register: db_files
   loop:
-    - ~/cpanel-restore-staging/mysql.sql
-    - ~/cpanel-restore-staging/mysql/overvie2_overview1.sql
-    - ~/cpanel-restore-staging/mysql/overvie2_wor1.sql
+    - ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql.sql
+    - ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql/overvie2_overview1.sql
+    - ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql/overvie2_wor1.sql
 
 - name: debug found database files
   debug:
@@ -63,28 +93,56 @@
   loop: "{{ db_files.results }}"
 
 - name: restore from main mysql.sql if it exists
-  shell: cat ~/cpanel-restore-staging/mysql.sql | docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
+  shell: cat ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql.sql | docker exec -i {{ dbcontainer }} mariadb -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
   when: db_files.results[0].stat.exists
   ignore_errors: yes
 
 - name: restore from specific database file if main doesn't exist
-  shell: cat ~/cpanel-restore-staging/mysql/overvie2_overview1.sql | docker exec -i {{ dbcontainer }} mysql -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
+  shell: cat ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql/overvie2_overview1.sql | docker exec -i {{ dbcontainer }} mariadb -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
   when: not db_files.results[0].stat.exists and db_files.results[1].stat.exists
   ignore_errors: yes
 
-- name: update WordPress URLs in database (optional)
+- name: restore from fallback database file if others fail
+  shell: cat ~/cpanel-restore-staging/backup-6.13.2025_07-04-38_overvie2/mysql/overvie2_overview1.sql | docker exec -i {{ dbcontainer }} mariadb -u{{ dbuser }} -p{{ dbpassword }} {{ dbname }}
+  when: db_files.results[0].stat.exists and db_files.results[1].stat.exists
+  ignore_errors: yes
+  register: db_restore_result
+
+- name: fix wp-config.php database settings for Docker containers
   shell: |
-    docker exec {{ wpcontainer }} wp search-replace "{{ old_site_url | default('http://overvie2.siteground.biz') }}" "{{ new_site_url }}" --allow-root
+    # Update database connection settings to match Docker container setup
+    docker exec {{ wpcontainer }} sed -i "s/define('DB_NAME', '[^']*')/define('DB_NAME', '{{ dbname }}')/g" /var/www/html/wp-config.php
+    docker exec {{ wpcontainer }} sed -i "s/define('DB_USER', '[^']*')/define('DB_USER', '{{ dbuser }}')/g" /var/www/html/wp-config.php  
+    docker exec {{ wpcontainer }} sed -i "s/define('DB_PASSWORD', '[^']*')/define('DB_PASSWORD', '{{ dbpassword }}')/g" /var/www/html/wp-config.php
+    docker exec {{ wpcontainer }} sed -i "s/define('DB_HOST', '[^']*')/define('DB_HOST', 'mysql')/g" /var/www/html/wp-config.php
+  ignore_errors: yes
+
+- name: remove problematic cache files from cPanel backup
+  shell: |
+    # Remove advanced-cache.php that references old cPanel paths
+    docker exec {{ wpcontainer }} rm -f /var/www/html/wp-content/advanced-cache.php
+    # Remove object-cache.php if it exists
+    docker exec {{ wpcontainer }} rm -f /var/www/html/wp-content/object-cache.php
+  ignore_errors: yes
+
+- name: disable problematic legacy plugins for PHP 8.0+ compatibility
+  shell: |
+    # Disable force-strong-passwords plugin that has PHP 8.0 type issues
+    docker exec {{ wpcontainer }} bash -c 'if [ -d "/var/www/html/wp-content/mu-plugins/force-strong-passwords" ]; then mv "/var/www/html/wp-content/mu-plugins/force-strong-passwords" "/var/www/html/wp-content/mu-plugins/force-strong-passwords.disabled"; fi'
+    docker exec {{ wpcontainer }} bash -c 'if [ -f "/var/www/html/wp-content/mu-plugins/slt-force-strong-passwords.php" ]; then mv "/var/www/html/wp-content/mu-plugins/slt-force-strong-passwords.php" "/var/www/html/wp-content/mu-plugins/slt-force-strong-passwords.php.disabled"; fi'
+    
+    # Disable other potentially problematic plugins
+    docker exec {{ wpcontainer }} bash -c 'if [ -d "/var/www/html/wp-content/plugins/wp-super-cache" ]; then mv "/var/www/html/wp-content/plugins/wp-super-cache" "/var/www/html/wp-content/plugins/wp-super-cache.disabled"; fi'
+  ignore_errors: yes
+
+- name: update WordPress URLs in database (manual step needed)
+  debug:
+    msg: |
+      WordPress URLs need to be updated manually after restoration.
+      You can do this through the WordPress admin or by directly updating the database:
+      UPDATE wp_options SET option_value = '{{ new_site_url }}' WHERE option_name = 'home';
+      UPDATE wp_options SET option_value = '{{ new_site_url }}' WHERE option_name = 'siteurl';
   when: old_site_url is defined and new_site_url is defined
-  ignore_errors: yes
-
-- name: flush WordPress rewrite rules
-  shell: docker exec {{ wpcontainer }} wp rewrite flush --allow-root
-  ignore_errors: yes
-
-- name: flush WordPress cache
-  shell: docker exec {{ wpcontainer }} wp cache flush --allow-root
-  ignore_errors: yes
 
 - name: update WordPress file permissions
   shell: |
@@ -93,7 +151,22 @@
     docker exec {{ wpcontainer }} chown -R www-data:www-data /var/www/html
   ignore_errors: yes
 
-- name: clean up staging directory
-  file:
-    path: ~/cpanel-restore-staging
-    state: absent 
+- name: clean up extracted backup files (keep tar file for reuse)
+  shell: |
+    cd ~/cpanel-restore-staging/
+    find . -mindepth 1 -name "backup-*" -type d -exec rm -rf {} +
+    find . -mindepth 1 -name "*.sql" -delete
+    find . -mindepth 1 ! -name "backup.tar" -delete
+  args:
+    warn: false
+  ignore_errors: yes
+
+- name: display cleanup summary
+  debug:
+    msg: |
+      🧹 Cleanup complete:
+      ✅ Extracted backup files removed
+      💾 backup.tar preserved for future use (~/cpanel-restore-staging/backup.tar)
+      
+      To manually clean up everything including the tar file:
+      rm -rf ~/cpanel-restore-staging/ 

@@ -1,0 +1,160 @@
+---
+- hosts: webservers
+  vars:
+    # Rollback configuration - backup_timestamp should be passed as extra var
+    wpcontainer: "{{ ovc_wp.wp.container }}"
+    dbcontainer: "{{ ovc_wp.db.container }}"
+    
+  tasks:
+    - name: Validate rollback parameters
+      fail:
+        msg: "backup_timestamp is required. Run with: -e backup_timestamp=TIMESTAMP"
+      when: backup_timestamp is not defined
+      
+    - name: Check if backup containers exist
+      shell: |
+        echo "🔍 Checking for backup containers..."
+        if docker images | grep -q "backup-wp-{{ backup_timestamp }}"; then
+          echo "✅ WordPress backup container found: backup-wp-{{ backup_timestamp }}"
+        else
+          echo "❌ WordPress backup container not found: backup-wp-{{ backup_timestamp }}"
+          exit 1
+        fi
+        
+        if docker images | grep -q "backup-db-{{ backup_timestamp }}"; then
+          echo "✅ Database backup container found: backup-db-{{ backup_timestamp }}"
+        else
+          echo "❌ Database backup container not found: backup-db-{{ backup_timestamp }}"
+          exit 1
+        fi
+      register: backup_check
+      
+    - name: Stop current containers
+      shell: |
+        echo "🛑 Stopping current containers..."
+        docker stop {{ wpcontainer }} || true
+        docker stop {{ dbcontainer }} || true
+        
+        # Remove current containers
+        docker rm {{ wpcontainer }} || true
+        docker rm {{ dbcontainer }} || true
+        
+        echo "✅ Current containers stopped and removed"
+        
+    - name: Restore containers from backup images
+      shell: |
+        echo "🔄 Restoring containers from backup images..."
+        
+        # Recreate WordPress container from backup
+        docker run -d \
+          --name {{ wpcontainer }} \
+          --restart=always \
+          --link {{ dbcontainer }}:mysql \
+          -v {{ wpcontainer }}:/var/www/html \
+          -e VIRTUAL_HOST="{{ ovc_wp_hosts }}" \
+          -e LETSENCRYPT_HOST="{{ ovc_wp_hosts }}" \
+          backup-wp-{{ backup_timestamp }}
+        
+        # Recreate database container from backup  
+        docker run -d \
+          --name {{ dbcontainer }} \
+          --restart=always \
+          -v ovc-wp-db-data:/var/lib/mysql \
+          backup-db-{{ backup_timestamp }}
+          
+        echo "✅ Containers restored from backup images"
+        
+    - name: Wait for containers to start
+      pause:
+        seconds: 30
+        
+    - name: Restore database if SQL backup exists
+      shell: |
+        echo "💾 Checking for database backup..."
+        if [ -f ~/upgrade-backups-{{ backup_timestamp }}/final-backup-{{ backup_timestamp }}.sql ]; then
+          echo "📥 Restoring database from SQL backup..."
+          cat ~/upgrade-backups-{{ backup_timestamp }}/final-backup-{{ backup_timestamp }}.sql | \
+            docker exec -i {{ dbcontainer }} mysql -u{{ ovc_wp.db.user }} -p{{ ovc_wp.db.password }} {{ ovc_wp.db.name }}
+          echo "✅ Database restored from SQL backup"
+        else
+          echo "⚠️ No SQL backup found - using container state only"
+        fi
+      ignore_errors: yes
+      
+    - name: Test rollback functionality
+      shell: |
+        echo "🧪 Testing rollback functionality..."
+        
+        # Test database connection
+        db_test=$(docker exec {{ wpcontainer }} wp db check --allow-root 2>/dev/null && echo "✅ DB OK" || echo "❌ DB Error")
+        echo "Database: $db_test"
+        
+        # Check WordPress version
+        wp_version=$(docker exec {{ wpcontainer }} wp core version --allow-root 2>/dev/null || echo "Unable to detect")
+        echo "WordPress Version: $wp_version"
+        
+        # Check PHP version
+        php_version=$(docker exec {{ wpcontainer }} php -v | head -1)
+        echo "PHP Version: $php_version"
+        
+        # Test site response
+        sleep 15
+        response=$(curl -s -o /dev/null -w "%{http_code}" https://{{ ovc_wp_hosts }} || echo "000")
+        echo "Site response: $response"
+        
+        if [ "$response" == "200" ] || [ "$response" == "301" ] || [ "$response" == "302" ]; then
+          echo "✅ Site is accessible after rollback"
+        else
+          echo "❌ Site not accessible after rollback (HTTP $response)"
+          exit 1
+        fi
+      register: rollback_test
+      
+    - name: Clean up upgrade artifacts
+      shell: |
+        echo "🧹 Cleaning up upgrade artifacts..."
+        
+        # Remove any failed upgrade containers
+        docker rm -f {{ wpcontainer }}-new {{ wpcontainer }}-old 2>/dev/null || true
+        
+        # List remaining backup images
+        echo "Backup images available for cleanup:"
+        docker images | grep "backup-.*-{{ backup_timestamp }}" || echo "None found"
+        
+        echo "✅ Cleanup complete"
+      ignore_errors: yes
+      
+    - name: Display rollback results
+      debug:
+        msg: |
+          
+          🔙 ROLLBACK COMPLETE!
+          ====================
+          
+          {{ rollback_test.stdout }}
+          
+          📊 ROLLBACK SUMMARY:
+          --------------------
+          ✅ WordPress container: Restored from backup-wp-{{ backup_timestamp }}
+          ✅ Database container: Restored from backup-db-{{ backup_timestamp }}
+          ✅ Site accessibility: Verified
+          
+          🧹 CLEANUP OPTIONS:
+          -------------------
+          1. Keep backups for safety (recommended for 24-48 hours)
+          2. Manual cleanup when satisfied:
+             docker rmi backup-wp-{{ backup_timestamp }} backup-db-{{ backup_timestamp }}
+             rm -rf ~/upgrade-backups-{{ backup_timestamp }}/
+          
+          🎯 Your site has been rolled back to the pre-upgrade state.
+          
+          📝 TROUBLESHOOTING UPGRADE:
+          ---------------------------
+          Before attempting upgrade again:
+          1. Review the upgrade compatibility report
+          2. Fix any identified plugin/theme issues
+          3. Consider incremental approach (WordPress 6.3 → 6.5 → 6.8)
+          4. Test in staging environment first
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml 

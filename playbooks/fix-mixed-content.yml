@@ -1,0 +1,201 @@
+---
+- hosts: webservers
+  vars:
+    wpcontainer: "{{ ovc_wp.wp.container }}"
+    site_url: "https://ovc.aliencyb.org"
+    
+  tasks:
+    - name: Update WordPress site URLs to HTTPS
+      shell: |
+        echo "Updating WordPress URLs to HTTPS..."
+        # Update home and siteurl options to HTTPS
+        docker exec {{ wpcontainer }} wp option update home '{{ site_url }}' --allow-root
+        docker exec {{ wpcontainer }} wp option update siteurl '{{ site_url }}' --allow-root
+        echo "WordPress URL options updated to HTTPS"
+      register: url_update
+      
+    - name: Check for existing HTTPS configuration
+      shell: |
+        echo "Checking for existing HTTPS configuration..."
+        docker exec {{ wpcontainer }} grep -E "FORCE_SSL|WP_HOME|WP_SITEURL|HTTP_X_FORWARDED_PROTO" /var/www/html/wp-config.php || echo "No existing HTTPS configuration found"
+      register: existing_config
+      ignore_errors: yes
+      
+    - name: Configure WordPress for HTTPS behind proxy
+      shell: |
+        echo "Configuring wp-config.php for HTTPS behind proxy..."
+        
+        # Create a temporary PHP configuration file
+        cat > /tmp/https-config.php << 'EOFCONFIG'
+        
+        /* Handle HTTPS when behind a proxy */
+        if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+            $_SERVER['HTTPS'] = 'on';
+        }
+        
+        /* Force SSL for admin and logins */
+        if (!defined('FORCE_SSL_ADMIN')) {
+            define('FORCE_SSL_ADMIN', true);
+        }
+        
+        /* Define site URLs explicitly */
+        if (!defined('WP_HOME')) {
+            define('WP_HOME', '{{ site_url }}');
+        }
+        if (!defined('WP_SITEURL')) {
+            define('WP_SITEURL', '{{ site_url }}');
+        }
+        
+        /* Trust proxy headers */
+        if (isset($_SERVER['HTTP_X_REAL_IP'])) {
+            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_REAL_IP'];
+        }
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+        
+        EOFCONFIG
+        
+        # Copy the config to the container
+        docker cp /tmp/https-config.php {{ wpcontainer }}:/tmp/https-config.php
+        
+        # Check if configuration already exists
+        if docker exec {{ wpcontainer }} grep -q "HTTP_X_FORWARDED_PROTO" /var/www/html/wp-config.php; then
+          echo "HTTPS proxy configuration already exists, skipping..."
+        else
+          # Insert the configuration before "That's all, stop editing" line
+          docker exec {{ wpcontainer }} bash -c "
+            # Create a backup
+            cp /var/www/html/wp-config.php /var/www/html/wp-config.php.bak
+            
+            # Split the file and insert our config
+            awk '/That.s all, stop editing/ {system(\"cat /tmp/https-config.php\")} {print}' /var/www/html/wp-config.php.bak > /var/www/html/wp-config.php
+          "
+          echo "Added HTTPS proxy configuration"
+        fi
+        
+        # Clean up
+        rm -f /tmp/https-config.php
+        docker exec {{ wpcontainer }} rm -f /tmp/https-config.php
+        
+        echo "wp-config.php configuration complete"
+      ignore_errors: yes
+      
+    - name: Search and replace HTTP URLs in database
+      shell: |
+        echo "Performing comprehensive HTTP to HTTPS replacement..."
+        # Replace all HTTP URLs with HTTPS
+        docker exec {{ wpcontainer }} wp search-replace 'http://ovc.aliencyb.org' '{{ site_url }}' --all-tables --allow-root
+        
+        # Also replace any references to the old domain with HTTP
+        docker exec {{ wpcontainer }} wp search-replace 'http://overviewconsulting.com' 'https://overviewconsulting.com' --all-tables --allow-root
+        
+        # Replace any remaining HTTP references to the current domain
+        docker exec {{ wpcontainer }} wp search-replace 'src="http://ovc.aliencyb.org' 'src="{{ site_url }}' --all-tables --allow-root
+        docker exec {{ wpcontainer }} wp search-replace 'href="http://ovc.aliencyb.org' 'href="{{ site_url }}' --all-tables --allow-root
+        
+        echo "Database search and replace completed"
+      register: search_replace
+      
+    - name: Fix serialized data issues
+      shell: |
+        echo "Checking for serialized data issues..."
+        # Use WP-CLI to fix any serialized data that might have been broken
+        docker exec {{ wpcontainer }} wp cache flush --allow-root
+        docker exec {{ wpcontainer }} wp transient delete --all --allow-root
+        echo "Cache and transients cleared"
+      ignore_errors: yes
+      
+    - name: Update .htaccess for HTTPS redirect
+      shell: |
+        echo "Updating .htaccess for HTTPS..."
+        docker exec {{ wpcontainer }} bash -c 'cat > /var/www/html/.htaccess << "EOF"
+        # BEGIN WordPress
+        <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteBase /
+        
+        # Force HTTPS
+        RewriteCond %{HTTP:X-Forwarded-Proto} !https
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+        
+        # WordPress rules
+        RewriteRule ^index\.php$ - [L]
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule . /index.php [L]
+        </IfModule>
+        # END WordPress
+        EOF'
+        echo ".htaccess updated"
+      ignore_errors: yes
+      
+    - name: Clear all caches
+      shell: |
+        echo "Clearing all caches..."
+        docker exec {{ wpcontainer }} wp cache flush --allow-root || true
+        docker exec {{ wpcontainer }} wp rewrite flush --allow-root || true
+        
+        # Clear any plugin caches
+        docker exec {{ wpcontainer }} rm -rf /var/www/html/wp-content/cache/* 2>/dev/null || true
+        docker exec {{ wpcontainer }} rm -rf /var/www/html/wp-content/wp-rocket-config/* 2>/dev/null || true
+        
+        echo "All caches cleared"
+      ignore_errors: yes
+      
+    - name: Check for remaining mixed content issues
+      shell: |
+        echo "Checking for remaining mixed content..."
+        # Search for any remaining HTTP references in the database
+        http_count=$(docker exec {{ wpcontainer }} wp db query "SELECT COUNT(*) FROM wp_posts WHERE post_content LIKE '%http://ovc.aliencyb.org%'" --skip-column-names --allow-root 2>/dev/null || echo "0")
+        echo "HTTP references in posts: $http_count"
+        
+        # Check options table
+        http_options=$(docker exec {{ wpcontainer }} wp db query "SELECT option_name FROM wp_options WHERE option_value LIKE '%http://ovc.aliencyb.org%'" --allow-root 2>/dev/null || echo "None")
+        echo "HTTP references in options: $http_options"
+        
+        # Test site HTTPS
+        response=$(curl -s -o /dev/null -w "%{http_code}" {{ site_url }} || echo "000")
+        echo "HTTPS site response: $response"
+      register: mixed_content_check
+      
+    - name: Restart WordPress container
+      docker_container:
+        name: "{{ wpcontainer }}"
+        restart: yes
+        state: started
+      
+    - name: Display results
+      debug:
+        msg: |
+          
+          MIXED CONTENT FIX COMPLETE
+          ==========================
+          
+          URL Updates:
+          {{ url_update.stdout }}
+          
+          Database Updates:
+          {{ search_replace.stdout }}
+          
+          Remaining Issues Check:
+          {{ mixed_content_check.stdout }}
+          
+          NEXT STEPS:
+          -----------
+          1. Clear your browser cache
+          2. Visit {{ site_url }} in an incognito/private window
+          3. Check browser console for any remaining mixed content warnings
+          4. If issues persist, check theme/plugin files for hardcoded HTTP URLs
+          
+          MANUAL CHECKS (if needed):
+          --------------------------
+          - Theme files: Check for hardcoded HTTP URLs in theme files
+          - Plugin settings: Some plugins store URLs in their own tables
+          - CDN settings: Check if any plugins use CDN with HTTP URLs
+          - Custom CSS: Check for url() references using HTTP
+          
+          TIP: Use browser developer tools (F12) > Console tab to see specific mixed content errors
+
+  vars_files:
+    - ../play_vars/ovc-wp.yml 
